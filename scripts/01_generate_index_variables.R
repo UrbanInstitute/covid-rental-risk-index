@@ -359,20 +359,20 @@ z_scored_by_state = indicator_data %>%
   effectsize::standardize() %>% 
   ungroup() 
 
-# Create plot comparing Z score (for perc_public_assistance) by state and by US
-diff_z_score_state_natl = z_scored_by_state %>% 
-  select(z_score_state = perc_public_assistance, GEOID, state_name) %>% 
-  left_join(z_scored_us %>% select(z_score_nat = perc_public_assistance, GEOID), by = "GEOID") %>% 
-  ggplot(aes(x = z_score_state, y = z_score_nat)) +
-  geom_point(alpha = 0.1, size = 0.6) +
-  geom_abline(aes(intercept = 0, slope = 1), col = palette_urbn_magenta[4]) +
-  labs(x = "Z Score by State",
-       y = "Z Score (National)",
-       title = "Z score comparison for % Public Assistance Variable")
-
-
-# Write out plot
-ggsave("output/z-score-comparison-state-natl.png")
+# # Create plot comparing Z score (for perc_public_assistance) by state and by US
+# diff_z_score_state_natl = z_scored_by_state %>% 
+#   select(z_score_state = perc_public_assistance, GEOID, state_name) %>% 
+#   left_join(z_scored_us %>% select(z_score_nat = perc_public_assistance, GEOID), by = "GEOID") %>% 
+#   ggplot(aes(x = z_score_state, y = z_score_nat)) +
+#   geom_point(alpha = 0.1, size = 0.6) +
+#   geom_abline(aes(intercept = 0, slope = 1), col = palette_urbn_magenta[4]) +
+#   labs(x = "Z Score by State",
+#        y = "Z Score (National)",
+#        title = "Z score comparison for % Public Assistance Variable")
+# 
+# 
+# # Write out plot
+# ggsave("output/z-score-comparison-state-natl.png")
 
 
 
@@ -554,6 +554,9 @@ indexed_data_by_state <- indexed_data_by_state %>%
   mutate(grayed_out = ifelse(num_ELI <= 0, 1, 0)) %>% 
   relocate(num_renters, num_ELI, grayed_out, ends_with("index"), ends_with("index_quantile"), 
            .after = county_fips)
+
+# Write out z_scored_by_state for specification testing in 05 script
+z_scored_by_state %>% write_csv("data/intermediate-data/z-scored-by-state.csv")
 
 
 # Look at one weird tract in CA which highlights problems with rescaled index values

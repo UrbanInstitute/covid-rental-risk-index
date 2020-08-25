@@ -34,7 +34,7 @@ us_counties_2018_cb = tigris::counties(year = 2018, class = "sf", cb = TRUE) %>%
 
 # Download in zip file of COC geographies and unzip
 download.file("https://www.hudexchange.info/resources/documents/CoC_GIS_National_Boundary_2019.zip",
-              destfile = "coc_geographies.zip")
+              destfile = "data/raw-data/coc_geographies.zip")
 dir.create("data/raw-data/coc-geographies", showWarnings = F)
 
 unzip("coc_geographies.zip",

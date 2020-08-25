@@ -36,6 +36,8 @@ vignettes/*.pdf
 *.knit.md
 data/raw-data/2012**
 data/raw-data/hud_files.zip
+data/raw-data/coc_geographies.zip
+data/raw-data/coc-geographies/FY*
 data/intermediate-data/*.geojson
 
 # Ignore code review docs
