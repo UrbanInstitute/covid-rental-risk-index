@@ -1,11 +1,12 @@
 library(tidyverse)
 library(sf)
+library(testit)
 # Helper functions
 z_scored_by_state = read_csv("data/intermediate-data/z-scored-by-state.csv")
 
 index_orig = st_read("data/intermediate-data/housing_index_state_adj.geojson")
 index_orig = index_orig %>% 
-  select(GEOID:total_index)
+  select(GEOID:county_fips, ends_with("index"))
 
 
 
@@ -25,6 +26,7 @@ row_sum_weighted = function(df, weight_vec){
   sum_matrix = (drop(df_m %*% weight_vec))
   sum_matrix %>% as.vector()
 }
+
 
 # Helper function to perform calculations and generate indices 
 generate_index = function(df, 
@@ -73,7 +75,7 @@ generate_index = function(df,
       mutate(covid_index = row_sum_weighted(select(.,
                                                    perc_low_income_jobs_lost, 
                                                    perc_no_hinsure ),
-                                            weight_vec = indicator_weights %>%
+                                            weight_vec = indicator_weights_df %>%
                                               pull(covid_index_weight) %>%
                                               na.omit())),
     indexed_data %>% slice(1:10)
@@ -195,7 +197,7 @@ diff_total_indices = index_orig %>%
   left_join(index_2 %>% select(GEOID, ends_with("index")), by = "GEOID", suffix = c("", "_2")) %>% 
   mutate(diff_orig_1 = total_index - total_index_1,
          diff_orig_2 = total_index - total_index_2) %>% 
-  select(GEOID:grayed_out, total_index, starts_with("diff"))
+  select(GEOID:county_fips, total_index, starts_with("diff"))
 
 
 difference_hists = diff_total_indices %>% 
