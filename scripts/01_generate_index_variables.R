@@ -468,7 +468,7 @@ generate_index = function(df,
            mutate(covid_index = row_sum_weighted(select(.,
                                                         perc_low_income_jobs_lost, 
                                                         perc_no_hinsure ),
-                                                 weight_vec = indicator_weights %>%
+                                                 weight_vec = indicator_weights_df %>%
                                                    pull(covid_index_weight) %>%
                                                    na.omit())),
          indexed_data %>% slice(1:10)
