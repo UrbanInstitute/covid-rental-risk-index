@@ -130,8 +130,7 @@ sr_stats <- sr_vars %>%
   select(B25003_003E, B25003_001E, GEOID) %>%
   # create Share renters variable w/ calculation
   mutate(perc_renters = (B25003_003E / B25003_001E),
-         perc_renters = 
-           if_else(B25003_001E == 0, 0, perc_renters),
+         perc_renters = if_else(B25003_001E == 0, 0, perc_renters),
          num_renters = B25003_003E)
 
 num_renters <-  sr_stats %>% select(GEOID, num_renters)

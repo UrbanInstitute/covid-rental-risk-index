@@ -16,10 +16,3 @@ aws s3 cp data/intermediate-data/housing_index_state_natl.csv s3://ui-covid-hous
 aws s3 cp data/intermediate-data/housing_index_natl.geojson s3://ui-covid-housing-risk-indicators/housing_index_natl.geojson
 
 
-# aws s3 cp data/intermediate-data/housing_data_indicators.csv s3://ui-covid-housing-risk-indicators/housing_data_indicators.csv
-# aws s3 cp data/intermediate-data/housing_data_index.csv s3://ui-covid-housing-risk-indicators/housing_data_index.csv
-# aws s3 cp data/intermediate-data/housing_data_index.geojson s3://ui-covid-housing-risk-indicators/housing_data_index.geojson
-# 
-# 
-# aws s3 cp data/intermediate-data/housing_data_index_by_state.csv s3://ui-covid-housing-risk-indicators/housing_data_index_by_state.csv
-# aws s3 cp data/intermediate-data/housing_data_index_by_state.geojson s3://ui-covid-housing-risk-indicators/housing_data_index_by_state.geojson
