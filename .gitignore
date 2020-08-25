@@ -34,7 +34,8 @@ vignettes/*.pdf
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
-data/raw-data/*
+data/raw-data/2012**
+data/raw-data/hud_files.zip
 data/intermediate-data/*.geojson
 
 # Ignore code review docs

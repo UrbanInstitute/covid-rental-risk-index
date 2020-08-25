@@ -58,7 +58,11 @@ Below is a short description of the files in the `scripts\` folder:
   year ACS, HUD CHAS, and Urban's Low Income Job Loss tool), converts all the
   indicators to percentages using the relevant numerator/demoninator, then
   calculates the state indexed z-scores, and weighted subindex and Total index
-  values. 
+  values. Note sometimes the Census FTP site may be down and this script will
+  error out with an error that looks something like `Error in
+  curl::curl_fetch_memory(url, handle = handle) : Could not resolve host:
+  api.census.gov`. If this happens, we suggest waiting a few minutes and trying
+  again.
 
 - `02_generate_geographies.R`: This generates geojsons of counties, states, and
   CoC's (Continuums of Care) to display on the map. CoC files are
