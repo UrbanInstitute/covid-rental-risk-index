@@ -1,0 +1,49 @@
+Variable Name,Defintion
+GEOID,Census tract GEOID
+state_name,Full state name
+county_name,Human readable county name
+state_fips,2 digit FIPS code for the state
+county_fips,4 digit FIPS code for the county
+perc_cost_burdened_under_35k,"Percentage of households whose annual incomes are less than $35,000 and pay 50 percent or more of their incomes in gross rent (2014-18 ACS data, table B25074)"
+perc_overcrowding_renter_1.50_or_more,"Percentage of renter-occupied households with more than 1.5 occupants per room (2014-18 ACS data, table B25014)"
+perc_unemployed_laborforce,"Percentage of unemployed people (2014-2018 ACS data, table B12006)"
+perc_renters,"Percentage of occupied housing units that are renter-occupied (2014-18 ACS data, table B25003)"
+perc_poverty_12mnth,"Percentage of people living in poverty (2014-18 ACS data, table C17002)"
+perc_no_hinsure,"Percentage of noninstitutionalized people ages 19 to 64 who do not have health insurance (2014-2018 ACS data, table C27012)"
+perc_person_of_color,"Percentage of people designated in the dataset as a race or ethnicity other than white non-Hispanic (2014-18 ACS data, table B03002)"
+perc_public_assistance,"Percentage of households whose income in the past 12 months included assistance from public benefit programs (2014-18 ACS data, table B19057)"
+perc_foreign_born,"Percentage of the population born outside the United States (2014-18 ACS data, table B05002)"
+perc_30hamfi,"Percentage of renter-occupied households that earn 30 percent of area median income or less (2012-16 CHAS tabulations, table 8)"
+perc_low_income_jobs_lost,"Percentage of people who have lost their jobs since February 2020 among residents with jobs that pay $40,000 or less (July 2020 update to Urban's ""Where Low-Income Jobs are Being Lost to COVID-19"")"
+housing_index,"Housing Instability Risk index value generated from perc_cost_burdened_under_35k, perc_overcrowding_renter_1.50_or_more, perc_unemployed_laborforce, perc_renters, perc_poverty_12mnth"
+covid_index,COVID-19 Impact index value generated from perc_no_hinsure and perc_low_income_jobs_lost
+equity_index,"Equity index value generated from perc_person_of_color, perc_public_assistance, perc_foreign_born, perc_30hamfi"
+total_index,"Total index value, generated from weighted subindex values"
+housing_index_quantile,The quantile within the state for the housing index
+covid_index_quantile,The quantile within the state for the covid index
+equity_index_quantile,The quantile within the state for the equity index
+total_index_quantile,The quantile within the state for the total index
+z_score_perc_cost_burdened_under_35k,The state adjusted z score for the z_score_perc_cost_burdened_under_35k indicator
+z_score_perc_overcrowding_renter_1.50_or_more,The state adjusted z score for the z_score_perc_overcrowding_renter_1.50_or_more indicator
+z_score_perc_unemployed_laborforce,The state adjusted z score for the z_score_perc_unemployed_laborforce indicator
+z_score_perc_renters,The state adjusted z score for the z_score_perc_renters indicator
+z_score_perc_poverty_12mnth,The state adjusted z score for the z_score_perc_poverty_12mnth indicator
+z_score_perc_no_hinsure,The state adjusted z score for the z_score_perc_no_hinsure indicator
+z_score_perc_person_of_color,The state adjusted z score for the z_score_perc_person_of_color indicator
+z_score_perc_public_assistance,The state adjusted z score for the z_score_perc_public_assistance indicator
+z_score_perc_foreign_born,The state adjusted z score for the z_score_perc_foreign_born indicator
+z_score_perc_30hamfi,The state adjusted z score for the z_score_perc_30hamfi indicator
+z_score_perc_low_income_jobs_lost,The state adjusted z score for the z_score_perc_low_income_jobs_lost indicator
+z_score_perc_cost_burdened_under_35k_quantile,The state adjusted z score for the z_score_perc_cost_burdened_under_35k_quantile indicator
+z_score_perc_overcrowding_renter_1.50_or_more_quantile,The state adjusted z score for the z_score_perc_overcrowding_renter_1.50_or_more_quantile indicator
+z_score_perc_unemployed_laborforce_quantile,The state adjusted z score for the z_score_perc_unemployed_laborforce_quantile indicator
+z_score_perc_renters_quantile,The state adjusted z score for the z_score_perc_renters_quantile indicator
+z_score_perc_poverty_12mnth_quantile,The state adjusted z score for the z_score_perc_poverty_12mnth_quantile indicator
+z_score_perc_no_hinsure_quantile,The state adjusted z score for the z_score_perc_no_hinsure_quantile indicator
+z_score_perc_person_of_color_quantile,The state adjusted z score for the z_score_perc_person_of_color_quantile indicator
+z_score_perc_public_assistance_quantile,The state adjusted z score for the z_score_perc_public_assistance_quantile indicator
+z_score_perc_foreign_born_quantile,The state adjusted z score for the z_score_perc_foreign_born_quantile indicator
+z_score_perc_30hamfi_quantile,The state adjusted z score for the z_score_perc_30hamfi_quantile indicator
+z_score_perc_low_income_jobs_lost_quantile,The state adjusted z score for the z_score_perc_low_income_jobs_lost_quantile indicator
+num_ELI,"Number of extremely low income renters in the census tract (2012-16 CHAS tabulations, table 8)"
+grayed_out,"0 or 1 flag for if a tract is grayed out in the feature: If num_ELI = 0, grayed_out = 1; if num_ELI > 0, grayed_out = 0"
