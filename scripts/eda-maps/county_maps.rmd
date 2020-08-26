@@ -1,0 +1,94 @@
+---
+sansfont: Lato
+font:     Lato
+urlcolor: blue
+params:
+  county_geoid: "06085"
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, cache = TRUE)
+library(tigris)
+library(mapview)
+library(sf)
+library(tidyverse)
+library(here)
+```
+
+
+
+```{r readin_and_filter_data, echo = FALSE, eval = TRUE, results = "hide"}
+
+# Read in and filter to county
+my_county = tigris::counties(cb = F, year = 2018) %>% 
+  filter(GEOID == params$county_geoid)
+
+county_name = my_county$NAMELSAD %>% str_to_title()
+
+
+# Read in index data from S3
+index_data_my_county = st_read("https://ui-covid-housing-risk-indicators.s3.amazonaws.com/housing_index_state_adj.geojson")
+
+index_data_my_county = index_data_my_county %>% 
+  filter(str_starts(GEOID, params$county_geoid))
+
+at_11 = lattice::do.breaks(endpoints = c(0, 1), nint = 100)
+
+
+urbn_blue_palette = colorRampPalette(palette_urbn_cyan)
+
+# unique_geoids = 
+#   counties_us %>% filter(NAMELSAD %in% c("Richmond city", "Baltimore city") |
+#                         (NAME == "Franklin" & STATEFP == "39") |
+#                         (NAME == "Alameda" & STATEFP == "06") |
+#                         (NAME == "Harris" & STATEFP == "48")) %>% 
+#   pull(GEOID)
+
+                      
+
+```
+
+## `r county_name` Scorecard
+
+### Total Rental Assistance Index
+
+
+```{r}
+only_indices = index_data_my_county %>% select(ends_with("index") )
+
+only_index_quantiles = index_data_my_county %>% select(ends_with("index_quantile"))
+
+mapview(only_index_quantiles, zcol = "total_index_quantile",
+        layer.name = "Rental Assistance Index (State Quantile)",
+        col.regions = urbn_blue_palette,
+        alpha.regions = 0.7) 
+
+```
+
+### Covid Risk Index
+```{r}
+mapview(only_index_quantiles, zcol = "covid_index_quantile", layer.name = "Covid Index (State Quantile)",
+        col.regions = urbn_blue_palette,
+        alpha.regions = 0.7) 
+
+```
+
+### Housing Risk Index
+
+```{r}
+mapview(only_index_quantiles, zcol = "housing_index_quantile", layer.name = "Housing Index (State Quantile)",
+        col.regions = urbn_blue_palette,
+        alpha.regions = 0.7) 
+```
+
+### Equity Index
+
+```{r}
+mapview(only_index_quantiles, zcol = "equity_index_quantile", layer.name = "Equity Index (State Quantile)",
+        col.regions = urbn_blue_palette,
+        alpha.regions = 0.7) 
+```
+
