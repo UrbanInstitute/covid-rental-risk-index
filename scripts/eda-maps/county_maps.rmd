@@ -1,21 +1,24 @@
 ---
 sansfont: Lato
-font:     Lato
+font: Lato
 urlcolor: blue
 params:
-  county_geoid: "06085"
-editor_options: 
+  county_geoid: 06085
+editor_options:
   chunk_output_type: console
 ---
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, cache = TRUE)
+knitr::opts_chunk$set(echo = FALSE, cache = FALSE)
 library(tigris)
 library(mapview)
 library(sf)
 library(tidyverse)
 library(here)
+library(urbnthemes)
+
+
 ```
 
 
