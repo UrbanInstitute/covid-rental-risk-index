@@ -1,5 +1,6 @@
 # covid-rental-risk-index
  
+Date Last Updated: XXX
 
 This repo contains the data, and code neccesary to generate the tract level 
 Rental Assistance Priority Indexes which power [this](https://www.urban.org/features/where-prioritize-emergency-rental-assistance-keep-renters-their-homes) interactive Urban
