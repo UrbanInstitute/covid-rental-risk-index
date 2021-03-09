@@ -45,7 +45,7 @@ cb_stats <- cb_vars %>%
   select(
     # These are all the peolpe making under 35k (denominator)
     B25074_002E, B25074_011E, B25074_020E,
-    # These are all the people making under 35k who pay more than 50% of thier income on rent (numerator)
+    # These are all the people making under 35k who pay more than 50% of their income on rent (numerator)
     B25074_009E, B25074_018E, B25074_027E, 
     # These are the people making under 35k for whom this metric wasn't computed
     # and they therefore need to be subtracted from the denominator
@@ -260,14 +260,13 @@ fb_stats <- fb_vars %>%
 
 # Income Indicator
 # Download in Zip file from HUD website, unzip and rename
-download.file("https://www.huduser.gov/portal/datasets/cp/2012thru2016-140-csv.zip", 
+download.file("https://www.huduser.gov/portal/datasets/cp/2013thru2017-140-csv.zip", 
               destfile = "data/raw-data/hud_files.zip",
               method = "libcurl")
 unzip("data/raw-data/hud_files.zip", 
-      files = "2012thru2016-140-csv/2012thru2016-140-csv/140/Table8.csv",
+      files = "2013thru2017-140-csv/140/Table8.csv",
       exdir = "data/raw-data")
-
-file.rename("data/raw-data/2012thru2016-140-csv/2012thru2016-140-csv/140/Table8.csv",
+file.rename("data/raw-data/2013thru2017-140-csv/140/Table8.csv",
             "data/raw-data/Table8.csv")
 
 income_vars <- read_csv("data/raw-data/Table8.csv")
