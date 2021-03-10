@@ -146,7 +146,7 @@ pv_vars <- map_dfr(
     state = .,
     variables = NULL,
     table = "C17002",
-    year = 2018,
+    year = 2019,
     survey = "acs5",
     output = "wide"
   )
