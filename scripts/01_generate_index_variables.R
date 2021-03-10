@@ -12,7 +12,7 @@ library(urbnthemes)
 set_urbn_defaults()
 
 # Load variable metadata from ACS 5 yr
-vars_list <- load_variables(year = 2018, dataset = "acs5", cache = TRUE)
+vars_list <- load_variables(year = 2019, dataset = "acs5", cache = TRUE)
 
 # View table of all ACS variables in another tab
 #View(vars_list)
@@ -33,12 +33,13 @@ cb_vars <- map_dfr(
     geography = "tract",
     state = .,
     table = "B25074",
-    year = 2018,
+    year = 2019,
     survey = "acs5",
     output = "wide"
   )
 )
-# Calculate percent of housholds making under 35k who pay more than 50% of their
+
+# Calculate percent of households making under 35k who pay more than 50% of their
 # income on rent
 cb_stats <- cb_vars %>%
   # select ACS table variables w/ attached GEOID
@@ -68,7 +69,7 @@ oc_vars <- map_dfr(
     geography = "tract",
     state = .,
     table = "B25014",
-    year = 2018,
+    year = 2019,
     survey = "acs5",
     output = "wide"
   )
@@ -93,7 +94,7 @@ un_vars <- map_dfr(
     state = .,
     variables = NULL,
     table = "B12006",
-    year = 2018,
+    year = 2019,
     survey = "acs5",
     output = "wide"
   )
@@ -118,7 +119,7 @@ sr_vars <- map_dfr(
     state = .,
     variables = NULL,
     table = "B25003",
-    year = 2018,
+    year = 2019,
     survey = "acs5",
     output = "wide"
   )
@@ -145,7 +146,7 @@ pv_vars <- map_dfr(
     state = .,
     variables = NULL,
     table = "C17002",
-    year = 2018,
+    year = 2019,
     survey = "acs5",
     output = "wide"
   )
@@ -167,7 +168,7 @@ hinsure_vars <- map_dfr(
     geography = "tract",
     state = .,
     table = "C27012",
-    year = 2018,
+    year = 2019,
     survey = "acs5",
     output = "wide"
   )
@@ -196,7 +197,7 @@ race_vars <- map_dfr(
     geography = "tract",
     state = .,
     table = "B03002",
-    year = 2018,
+    year = 2019,
     survey = "acs5",
     output = "wide"
   )
@@ -226,7 +227,7 @@ pa_vars <- map_dfr(
     geography = "tract",
     state = .,
     table = "B19057",
-    year = 2018,
+    year = 2019,
     survey = "acs5",
     output = "wide"
   )
@@ -244,7 +245,7 @@ fb_vars <- map_dfr(
     geography = "tract",
     state = .,
     table = "B05002",
-    year = 2018,
+    year = 2019,
     survey = "acs5",
     output = "wide"
   )

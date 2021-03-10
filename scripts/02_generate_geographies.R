@@ -5,11 +5,11 @@ library(tigris)
 
 options(tigris_use_cache=FALSE)
 
-state_2018 = tigris::states(year = 2018, class = "sf") %>% 
+state_2019 = tigris::states(year = 2019, class = "sf") %>% 
   janitor::clean_names() %>% 
   select(statefp, abbv = stusps, name)
 
-us_counties_2018 = tigris::counties(year = 2018, class = "sf") %>%
+us_counties_2019 = tigris::counties(year = 2019, class = "sf") %>%
   janitor::clean_names() %>% 
   select(statefp, countyfp, name, namelsad) %>% 
   left_join(state_2018 %>%
@@ -20,10 +20,10 @@ us_counties_2018 = tigris::counties(year = 2018, class = "sf") %>%
   select(unique_id, statefp, countyfp, namelsad, state_abbv, state_name)
 
 
-us_counties_2018_cb = tigris::counties(year = 2018, class = "sf", cb = TRUE) %>%
+us_counties_2019_cb = tigris::counties(year = 2019, class = "sf", cb = TRUE) %>%
   janitor::clean_names() %>% 
   select(statefp, countyfp) %>% 
-  left_join(us_counties_2018 %>% 
+  left_join(us_counties_2019 %>% 
               select(statefp, countyfp, namelsad, state_abbv, state_name) %>% 
               st_drop_geometry(),
             by = c("statefp", "countyfp")) %>% 
@@ -97,9 +97,9 @@ all_cocs_modified = rbind(split_cocs, cocs_in_single_state) %>%
 # Write out as geojson
 all_cocs_modified %>% st_write("data/intermediate-data/coc_geographies_states_split.geojson", delete_dsn = TRUE)
 
-us_counties_2018 %>% st_write("data/intermediate-data/counties.geojson", delete_dsn = TRUE)
+us_counties_2019 %>% st_write("data/intermediate-data/counties.geojson", delete_dsn = TRUE)
 
-us_counties_2018_cb %>% st_write("data/intermediate-data/counties_cb.geojson", delete_dsn = TRUE)
+us_counties_2019_cb %>% st_write("data/intermediate-data/counties_cb.geojson", delete_dsn = TRUE)
 
 # all_cocs_modified %>% mapview::mapview()
 # maps_cocs_two = coc_state_ints %>% filter(n == 2) %>% mapview::mapview(zcol = "COCNAME")
