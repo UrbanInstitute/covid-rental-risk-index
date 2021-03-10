@@ -119,7 +119,7 @@ sr_vars <- map_dfr(
     state = .,
     variables = NULL,
     table = "B25003",
-    year = 2018,
+    year = 2019,
     survey = "acs5",
     output = "wide"
   )
