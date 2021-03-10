@@ -425,7 +425,7 @@ row_sum_weighted = function(df, weight_vec){
 generate_index = function(df, 
                           indicator_weights_df,
                           index_weights_vec, 
-                          tracts_18 = NA,
+                          tracts_19 = NA,
                           rescale_indices = FALSE){
   # Function to generate covid, housing, equity, and total index given weights. 
   # INPUT:
@@ -434,6 +434,7 @@ generate_index = function(df,
   #     indicator_weights object for an example
   #   index_weights_vec: vector of length 3, which contains weights fo housing, 
   #     equity, and covid index (in that order)
+  ##UPDATED TO tracts_19###
   #   tracts_18: An sf dataframe of 2018 tracts with a GEOID column. If NA, this
   #     function will download in the data from the Job Loss tool data files
   # OUTPUT:
@@ -501,15 +502,15 @@ generate_index = function(df,
   # Attach geometries for each tract using data files from Job Loss Tool
   
   # If tracts isn't given in fxn call, then download in from Job Loss Tool data
-  if (is.na(tracts_18)){
-    tracts_18_job_loss = 
+  if (is.na(tracts_19)){
+    tracts_19_job_loss = 
       st_read("https://ui-lodes-job-change-public.s3.amazonaws.com/job_loss_by_tract.geojson")
-    tracts_18 = tracts_18_job_loss %>% 
+    tracts_19 = tracts_19_job_loss %>% 
       select(GEOID, geometry)
   } 
   
   result_with_geoms = result %>% 
-    right_join(tracts_18, by = "GEOID") %>% 
+    right_join(tracts_19, by = "GEOID") %>% 
     st_as_sf()
 
   return(result_with_geoms)
@@ -519,15 +520,15 @@ generate_index = function(df,
 
 ###---Create Indexes---------
 
-tracts_18_job_loss = 
+tracts_19_job_loss = 
   st_read("https://ui-lodes-job-change-public.s3.amazonaws.com/job_loss_by_tract.geojson")
-tracts_18 = tracts_18_job_loss %>% 
+tracts_19 = tracts_19_job_loss %>% 
   select(GEOID, geometry)
 
 indexed_data_us = generate_index(z_scored_us,
                                  indicator_weights,
                                  index_weights,
-                                 tracts_18)
+                                 tracts_19)
 
 indexed_data_us <- indexed_data_us %>%
   left_join(num_ELI, by = "GEOID") %>% 
@@ -540,7 +541,7 @@ indexed_data_us <- indexed_data_us %>%
 indexed_data_by_state = generate_index(z_scored_by_state, 
                                        indicator_weights, 
                                        index_weights,
-                                       tracts_18,
+                                       tracts_19,
                                       rescale_indices = F)
 
 indexed_data_by_state <- indexed_data_by_state %>%
