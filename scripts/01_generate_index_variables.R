@@ -227,7 +227,7 @@ pa_vars <- map_dfr(
     geography = "tract",
     state = .,
     table = "B19057",
-    year = 2018,
+    year = 2019,
     survey = "acs5",
     output = "wide"
   )
