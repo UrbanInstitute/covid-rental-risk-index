@@ -12,7 +12,7 @@ state_2019 = tigris::states(year = 2019, class = "sf") %>%
 us_counties_2019 = tigris::counties(year = 2019, class = "sf") %>%
   janitor::clean_names() %>% 
   select(statefp, countyfp, name, namelsad) %>% 
-  left_join(state_2018 %>%
+  left_join(state_2019 %>%
               select(statefp, state_abbv = abbv, state_name = name) %>% 
               st_drop_geometry()) %>% 
   mutate(unique_id = row_number()) %>% 
