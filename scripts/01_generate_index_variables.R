@@ -57,9 +57,10 @@ cb_stats <- cb_vars %>%
   mutate(perc_cost_burdened_under_35k = (B25074_009E + B25074_018E + B25074_027E) /
          (B25074_002E + B25074_011E + B25074_020E - B25074_010E - B25074_019E -
             B25074_028E),
-         #cd add
+         #if denominator is 0, then convert returned NaNs to 0 manually.
          perc_cost_burdened_under_35k =
-          if_else(B25074_002E + B25074_011E + B25074_020E == 0, 0, 
+          if_else(B25074_002E + B25074_011E + B25074_020E - B25074_010E - B25074_019E -
+                    B25074_028E == 0, 0, 
                   perc_cost_burdened_under_35k))
 
 # Overcrowding Indicator
@@ -260,10 +261,15 @@ fb_stats <- fb_vars %>%
 ### ---Pull HUD CHAS data------
 
 # Income Indicator
+
+# Sometimes the below download.file() fxn spits out a timeout error. So we 
+# increase the timeout to 2 min  (instead of default 1 min)
+options(timeout=180)
+
 # Download in Zip file from HUD website, unzip and rename
 download.file("https://www.huduser.gov/portal/datasets/cp/2013thru2017-140-csv.zip", 
               destfile = "data/raw-data/hud_files.zip",
-              method = "libcurl")
+              method = "curl")
 unzip("data/raw-data/hud_files.zip", 
       files = "2013thru2017-140-csv/140/Table8.csv",
       exdir = "data/raw-data")
@@ -342,6 +348,23 @@ indicator_data = indicator_data %>%
                    mean(perc_public_assistance, na.rm = T),
                    perc_public_assistance)
            )
+
+assert(
+  "Check that none of the percent columns have values above 1",
+  indicator_data %>% 
+  select(GEOID, starts_with("perc")) %>% 
+  filter(across(starts_with("perc"), ~.x > 1)) %>% 
+  nrow == 0
+)
+
+assert(
+  "Check that none of the percent columns have values below 0",
+  indicator_data %>% 
+    select(GEOID, starts_with("perc")) %>% 
+    filter(across(starts_with("perc"), ~.x < 0)) %>% 
+    nrow == 0
+)
+
 
 ###---Convert to Z scores---------------------------
 
@@ -503,10 +526,7 @@ generate_index = function(df,
   
   # If tracts isn't given in fxn call, then download in from Job Loss Tool data
   if (is.na(tracts_19)){
-    tracts_19_job_loss = 
-      st_read("https://ui-lodes-job-change-public.s3.amazonaws.com/job_loss_by_tract.geojson")
-    tracts_19 = tracts_19_job_loss %>% 
-      select(GEOID, geometry)
+    stop("The tracts argument was not provided")
   } 
   
   result_with_geoms = result %>% 
