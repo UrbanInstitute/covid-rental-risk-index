@@ -662,7 +662,7 @@ full_data_natl_indices %>%
 
 # Geojson for data catalog
 full_data_natl_indices %>% 
-  st_write("data/intermediate-data/housing_index_natl.geojson")
+  st_write("data/intermediate-data/housing_index_natl.geojson", delete_dsn = TRUE)
 
   
   
@@ -687,8 +687,8 @@ indexed_data_by_state = indexed_data_by_state %>%
   mutate(id = as.numeric(GEOID)) 
 
 ## Write out geojsons
-st_write(indexed_data_us, "data/intermediate-data/housing_data_index.geojson", delete_dsn = T)
-st_write(indexed_data_by_state, "data/intermediate-data/housing_data_index_by_state.geojson", delete_dsn = T)
+st_write(indexed_data_us, "data/intermediate-data/housing_data_index.geojson", delete_dsn = TRUE)
+st_write(indexed_data_by_state, "data/intermediate-data/housing_data_index_by_state.geojson", delete_dsn = TRUE)
 
 
 
