@@ -55,12 +55,13 @@ cb_stats <- cb_vars %>%
   ) %>%
   # create cost burden variable w/ calculation
   mutate(perc_cost_burdened_under_35k = (B25074_009E + B25074_018E + B25074_027E) /
-         (B25074_002E + B25074_011E + B25074_020E - B25074_010E - B25074_019E -
-            B25074_028E),
-         #cd add
+           (B25074_002E + B25074_011E + B25074_020E - B25074_010E - B25074_019E -
+              B25074_028E),
+         #if denominator is 0, then convert returned NaNs to 0 manually.
          perc_cost_burdened_under_35k =
-          if_else(B25074_002E + B25074_011E + B25074_020E == 0, 0, 
-                  perc_cost_burdened_under_35k))
+           if_else(B25074_002E + B25074_011E + B25074_020E - B25074_010E - B25074_019E -
+                     B25074_028E == 0, 0, 
+                   perc_cost_burdened_under_35k))
 
 # Overcrowding Indicator
 oc_vars <- map_dfr(
@@ -186,7 +187,7 @@ hinsure_stats <- hinsure_vars %>%
     LFT_total = C27012_009E, 
     NW_total = C27012_016E, GEOID) %>%
   mutate(perc_no_hinsure = (FT_nHI + LFT_nHI + NW_nHI) / (FT_total + LFT_total + NW_total),
-          perc_no_hinsure = 
+         perc_no_hinsure = 
            if_else(FT_total + LFT_total + NW_total == 0, 0, perc_no_hinsure))
 
 
@@ -209,7 +210,7 @@ race_stats <- race_vars %>%
   ) %>%
   mutate(perc_NHBlack = NHBlack / total,
          perc_NHBlack = 
-          if_else(total == 0, 0, perc_NHBlack)) %>%
+           if_else(total == 0, 0, perc_NHBlack)) %>%
   mutate(perc_Hispanic = Hispanic / total,
          perc_Hispanic = 
            if_else(total == 0, 0, perc_Hispanic)) %>%
@@ -260,10 +261,15 @@ fb_stats <- fb_vars %>%
 ### ---Pull HUD CHAS data------
 
 # Income Indicator
+
+# Sometimes the below download.file() fxn spits out a timeout error. So we 
+# increase the timeout to 2 min  (instead of default 1 min)
+options(timeout=180)
+
 # Download in Zip file from HUD website, unzip and rename
 download.file("https://www.huduser.gov/portal/datasets/cp/2013thru2017-140-csv.zip", 
               destfile = "data/raw-data/hud_files.zip",
-              method = "libcurl")
+              method = "curl")
 unzip("data/raw-data/hud_files.zip", 
       files = "2013thru2017-140-csv/140/Table8.csv",
       exdir = "data/raw-data")
@@ -290,7 +296,7 @@ num_ELI <- income_stats %>% select(GEOID, num_ELI)
 covid_low_income_job_vars <- read_csv("https://ui-lodes-job-change-public.s3.amazonaws.com/job_loss_by_tract.csv")
 covid_low_income_job_stats <- covid_low_income_job_vars %>%
   select(GEOID, state_name, county_name, state_fips, county_fips,
-    perc_low_income_jobs_lost = low_income_worker_job_loss_rate
+         perc_low_income_jobs_lost = low_income_worker_job_loss_rate
   )
 
 ###------Data Cleaning---------
@@ -321,7 +327,7 @@ indicator_data = indicator_data %>%
   # TODO: Problem with Covid data where one tract has value of NA
   filter(!is.na(perc_low_income_jobs_lost)) %>% 
   # Deselect unused race indicators
-
+  
   select(-perc_NHBlack, -perc_Hispanic, -perc_otherPOC) %>% 
   # 9 tracts in New Mexico have NA values for a few metrics, perhaps due to Census
   # suppression. So we replace those NA values with the national mean
@@ -341,7 +347,24 @@ indicator_data = indicator_data %>%
            if_else(is.na(perc_public_assistance), 
                    mean(perc_public_assistance, na.rm = T),
                    perc_public_assistance)
-           )
+  )
+
+assert(
+  "Check that none of the percent columns have values above 1",
+  indicator_data %>% 
+    select(GEOID, starts_with("perc")) %>% 
+    filter(across(starts_with("perc"), ~.x > 1)) %>% 
+    nrow == 0
+)
+
+assert(
+  "Check that none of the percent columns have values below 0",
+  indicator_data %>% 
+    select(GEOID, starts_with("perc")) %>% 
+    filter(across(starts_with("perc"), ~.x < 0)) %>% 
+    nrow == 0
+)
+
 
 ###---Convert to Z scores---------------------------
 
@@ -397,7 +420,7 @@ indicator_weights = tribble(
   "perc_30hamfi",                          NA_integer_,        NA_integer_,(1-poc_weight_in_index)/3,
   "perc_low_income_jobs_lost",             NA_integer_,                0.5,         NA_integer_,
   "perc_no_hinsure",                       NA_integer_,                0.5,         NA_integer_,
-    
+  
 ) 
 
 # Weights for three composite indicators (housing, equity, covid) in that order
@@ -458,31 +481,31 @@ generate_index = function(df,
                                 covid_index),
                          weight_vec = index_weights_vec)) 
   
-
+  
   # Check that nrows of indexes line up with nrows of initial dataframe
   assert(nrow(indexed_data) == nrow(df))
   
   # Check that manual sums of covid, housing, and equity indices add up
   assert(dplyr::all_equal(
-            df %>% slice(1:10) %>% 
-           select(GEOID, perc_low_income_jobs_lost, perc_no_hinsure) %>% 
-           mutate(covid_index = row_sum_weighted(select(.,
-                                                        perc_low_income_jobs_lost, 
-                                                        perc_no_hinsure ),
-                                                 weight_vec = indicator_weights_df %>%
-                                                   pull(covid_index_weight) %>%
-                                                   na.omit())),
-         indexed_data %>% slice(1:10)
+    df %>% slice(1:10) %>% 
+      select(GEOID, perc_low_income_jobs_lost, perc_no_hinsure) %>% 
+      mutate(covid_index = row_sum_weighted(select(.,
+                                                   perc_low_income_jobs_lost, 
+                                                   perc_no_hinsure ),
+                                            weight_vec = indicator_weights_df %>%
+                                              pull(covid_index_weight) %>%
+                                              na.omit())),
+    indexed_data %>% slice(1:10)
   ))
   
-
+  
   if(rescale_indices){
     # rescale_indices to be between 0 and 100 if option is set
     
     indexed_data = indexed_data %>% 
       mutate(across(contains("index"), ~scales::rescale(.x, to = c(0,100))))
   }
-
+  
   
   
   ntile_100 = function(x){
@@ -503,16 +526,13 @@ generate_index = function(df,
   
   # If tracts isn't given in fxn call, then download in from Job Loss Tool data
   if (is.na(tracts_19)){
-    tracts_19_job_loss = 
-      st_read("https://ui-lodes-job-change-public.s3.amazonaws.com/job_loss_by_tract.geojson")
-    tracts_19 = tracts_19_job_loss %>% 
-      select(GEOID, geometry)
+    stop("The tracts argument was not provided")
   } 
   
   result_with_geoms = result %>% 
     right_join(tracts_19, by = "GEOID") %>% 
     st_as_sf()
-
+  
   return(result_with_geoms)
   
   
@@ -542,7 +562,7 @@ indexed_data_by_state = generate_index(z_scored_by_state,
                                        indicator_weights, 
                                        index_weights,
                                        tracts_19,
-                                      rescale_indices = F)
+                                       rescale_indices = F)
 
 indexed_data_by_state <- indexed_data_by_state %>%
   left_join(num_ELI, by = "GEOID") %>% 
@@ -567,7 +587,7 @@ full_data_state_indices = indicator_data %>%
   left_join(indexed_data_by_state %>% 
               dplyr::select(GEOID, contains("index") |
                               (starts_with("z_score_perc")),
-                           num_ELI, grayed_out),
+                            num_ELI, grayed_out),
             by = "GEOID") %>% 
   st_as_sf()
 
@@ -585,12 +605,12 @@ indicator_data_us = indexed_data_us %>%
            (starts_with("z_score_perc"))) %>% 
   dplyr::rename_with(~paste0(.x, "_natl"), .cols = contains("index")) %>% 
   right_join(indicator_data, by = "GEOID") %>% 
-    # move indices to the right
+  # move indices to the right
   select(-contains("index"), contains("index")) %>% 
   # Also append by state indices for comparison. May need to remove later
   left_join(indexed_data_by_state %>% 
               dplyr::select(GEOID, contains("index") |
-                    (starts_with("z_score_perc"))) %>% 
+                              (starts_with("z_score_perc"))) %>% 
               st_drop_geometry(),
             by = "GEOID",
             suffix = c("", "_state_adj")) %>%
@@ -599,7 +619,7 @@ indicator_data_us = indexed_data_us %>%
   dplyr::relocate(ends_with("_natl"), .after = last_col()) %>% 
   dplyr::relocate(starts_with("perc_")) %>% 
   dplyr::relocate(GEOID, state_name, county_name, state_fips, county_fips,num_ELI, num_renters)
-  
+
 
 # Round indices to two decimal points
 full_data_state_indices
@@ -631,8 +651,8 @@ full_data_state_indices %>%
   # Alice wanted GEOID to be numeric bc of Mapbox weirdness
   mutate(GEOID = as.numeric(GEOID)) %>% 
   st_write("data/intermediate-data/housing_index_state_adj_feature.geojson", delete_dsn = TRUE)
-  
-  
+
+
 
 ## Write out full national unadjusted data
 # CSV for Data Catalog
@@ -644,9 +664,9 @@ full_data_natl_indices %>%
 full_data_natl_indices %>% 
   st_write("data/intermediate-data/housing_index_natl.geojson")
 
-  
-  
-  
+
+
+
 ### Old data writeouts, kept for correlation/eda scripts
 # Write out non z scored indicators (and indexes)
 write_csv(indicator_data_us %>% st_drop_geometry(), "data/intermediate-data/housing_data_indicators.csv")
@@ -662,7 +682,7 @@ num_renters %>% write_csv("data/intermediate-data/num_renters_per_tract.csv")
 # Alice requested a numeric ID column that is a version of GEOID for Mapbox geojsons
 indexed_data_us = indexed_data_us %>% 
   mutate(id = as.numeric(GEOID)) 
-  
+
 indexed_data_by_state = indexed_data_by_state %>% 
   mutate(id = as.numeric(GEOID)) 
 

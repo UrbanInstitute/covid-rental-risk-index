@@ -7,20 +7,27 @@ library(sf)
 library(readxl)
 library(urbnthemes)
 library(scales)
+library(urbnmapr)
 
-set_urbn_defaults()
+set_urbn_defaults(style = "map")
+options(scipen=999)
+urban_colors <- c("#cfe8f3","#73bfe2","#1696d2","#0a4c6a","#000000","#dfdfdf")
+
+my_counties <- get_urbn_map("counties", sf=T)
+my_states <- get_urbn_map("states", sf=T)
+
 
 
 # 2018 index values 
-ERAP_2018 <- read_csv("https://ui-covid-housing-risk-indicators.s3.amazonaws.com/housing_index_state_adj.csv") 
+ERAP_2018 <- read_csv("data/intermediate-data/housing_index_state_adj_2018.csv") 
 ERAP_2018_main <- ERAP_2018 %>%
   select(GEOID, housing_index, covid_index, equity_index, total_index, housing_index_quantile, 
          covid_index_quantile, equity_index_quantile, total_index_quantile) %>%
   rename_all(paste0, "_2018")
 
 # 2019 index values
-ERAP_2019_main <- full_data_state_indices %>% 
-  st_drop_geometry() %>%
+ERAP_2019 <- read_csv("data/intermediate-data/housing_index_state_adj_2019.csv")
+ERAP_2019_main <- ERAP_2019 %>%
   select(GEOID, housing_index, covid_index, equity_index, total_index, housing_index_quantile, 
          covid_index_quantile, equity_index_quantile, total_index_quantile) %>%
   rename_all(paste0, "_2019")
@@ -236,4 +243,45 @@ summary_table_decile <- table_housing_decile %>%
 
 summary_table_decile %>%
   write_csv("data/intermediate-data/decile change.csv")
+
+
+
+# analysis on census tracts that changed by more than +/- 10 percent
+bigchange <- combined %>%
+  mutate(morethan10 = case_when(total_diff_quantile > 0.10 | total_diff_quantile < -0.10 ~ 1,
+                                total_diff_quantile <= 0.10 & total_diff_quantile >= -0.10 ~ 0,
+                                T ~ NA_real_),
+         count = case_when(morethan10 == 0 | morethan10 == 1 ~ 1,
+                           T ~ NA_real_),
+         county = substr(GEOID_2019, 1, 5)) %>%
+  group_by(county) %>%
+  summarize(morethan10 = sum(morethan10),
+            count = sum(count)) %>%
+  mutate(percent = morethan10 / count)
+
+test <- sum(bigchange$count)
+
+countymap <- left_join(my_counties, bigchange, by = c("county_fips" = "county"))
+
+final_levels <- c("0%","0%-25%","25%-50%","50%-75%","75%-100%")
+
+
+ggplot() + 
+  geom_sf(my_counties, mapping = aes(), fill = "#dfdfdf", color = "#ffffff", size = .05) + 
+  coord_sf(datum = NA) + 
+  geom_sf(countymap %>% filter(!is.na(percent)), mapping = aes(fill=percent %>% cut(breaks = c(0,0.00001,0.25,0.5,0.75,1), include.lowest = T)), color = "#ffffff", size = .05) + 
+  coord_sf(datum = NA) + 
+  scale_fill_manual(values = urban_colors, labels = final_levels) +
+  geom_sf(my_states, mapping = aes(), fill = NA, size = 1, color = "white") + 
+  theme(plot.margin = margin(t=0, b=0, l=0),
+        legend.title = element_blank(),
+        plot.caption = element_text(hjust = 0))
+
+ggsave("shareshifts.png")
+
+
+
+
+
+
 
