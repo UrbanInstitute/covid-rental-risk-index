@@ -41,7 +41,7 @@ unzip("coc_geographies.zip",
       exdir = "data/raw-data/coc-geographies"
       )
 
-coc_gdb = st_read("data/raw-data/coc-geographies/FY19_CoC_National_Bnd.gdb")
+# coc_gdb = st_read("data/raw-data/coc-geographies/FY19_CoC_National_Bnd.gdb")
 
 
 # Write out CoC and state data for Rob to do spatial intersection
@@ -100,44 +100,4 @@ all_cocs_modified %>% st_write("data/intermediate-data/coc_geographies_states_sp
 us_counties_2019 %>% st_write("data/intermediate-data/counties.geojson", delete_dsn = TRUE)
 
 us_counties_2019_cb %>% st_write("data/intermediate-data/counties_cb.geojson", delete_dsn = TRUE)
-
-# all_cocs_modified %>% mapview::mapview()
-# maps_cocs_two = coc_state_ints %>% filter(n == 2) %>% mapview::mapview(zcol = "COCNAME")
-# mapshot(maps_cocs_two, url  = "data/intermediate-data/two_state_cocs.html")
-
-
-# Looks like there are some invalide geometries that could lead to R being very slow
-# with the spatial joins. Need to investigate further
-# result = coc_gdb %>% 
-#   select(-STATE_NAME, -Shape_Length, -Shape_Area) 
-# result1 = result %>% st_transform("ESRI:102008") %>% st_buffer(dist = 0)
-# valid_log = st_is_valid(result)
-# bad_geoms = result %>% 
-#   filter(!valid_log)
-# 
-# bad_geoms %>% st_make_valid() %>% mapview::mapview()
-# 
-#
-# x = st_intersection(result %>%
-#                       st_transform("ESRI:102008") %>%
-#                       filter(COCNAME == "Kentucky Balance of State CoC"), %>%
-#                     #If not we get error that  TopologyException:
-#                     # Input geom 0 is invalid: Ring Self-intersection at or near point
-#                     st_make_valid(),
-#                     state_2018 %>%
-#                       st_transform("ESRI:102008"))
-#
-# 
-# state_coc_ints %>%
-#   mutate(area_int = st_area(.)) %>% 
-#   arrange(desc(area_int)) %>% 
-#   filter(area_int > units::set_units(4000, m^2))
-# 
-# 
-# state_coc_ints %>% add_count(COCNUM) %>% 
-#   arrange(desc(area_int))
-# 
-# state_coc_ints %>% filter(COCNUM == "MO-606") %>% 
-#   mapview::mapview()
-
 

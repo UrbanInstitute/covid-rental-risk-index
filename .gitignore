@@ -31,3 +31,5 @@ data/raw-data/coc-geographies/FY*
 data/intermediate-data/*.geojson
 # Ignore code review docs
 docs/*
+
+*.env
