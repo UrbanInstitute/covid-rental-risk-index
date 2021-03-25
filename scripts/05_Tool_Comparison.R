@@ -27,7 +27,7 @@ ERAP_2018_main <- ERAP_2018 %>%
   rename_all(paste0, "_2018")
 
 # 2019 index values
-ERAP_2019 <- read_csv("data/intermediate-data/housing_index_state_adj_2019.csv")
+ERAP_2019 <- read_csv("data/intermediate-data/housing_index_state_adj_2019_ajjit.csv")
 ERAP_2019_main <- ERAP_2019 %>%
   select(GEOID, housing_index, covid_index, equity_index, total_index, housing_index_quantile, 
          covid_index_quantile, equity_index_quantile, total_index_quantile, perc_person_of_color,
@@ -386,7 +386,8 @@ other_char %>%
 
 # % POC
 other_char %>%
-  ggplot(mapping = aes(x = perc_person_of_color_2019, y = total_diff_quantile)) + 
+  filter(covid_diff_quantile > 0.10 | covid_diff_quantile < -.10) %>%
+  ggplot(mapping = aes(x = perc_person_of_color_2019, y = covid_diff_quantile)) + 
   geom_hex(mapping = aes(fill = ..count..)) + 
   scale_x_continuous(limits = c(0, 1),
                      breaks = 0:4 * 0.25) + 
@@ -394,15 +395,33 @@ other_char %>%
                      breaks = -2:2 * 0.5) + 
   scale_fill_gradientn(labels = scales::comma) + 
   labs(x = "Percent People of Color",
-       y = "Change in Total Index Percentile Ranking") + 
+       y = "Change in COVID Sub-Index Percentile Ranking") + 
   scatter_grid() + 
   theme(legend.position = "right",
         legend.direction = "vertical")
 
-ggsave("perc_poc.png")
+ggsave("perc_poc_covid.png")
 
 other_char %>%
-  ggplot(mapping = aes(x = perc_low_income_jobs_lost_2019, y = total_diff_quantile)) + 
+  filter(housing_diff_quantile > 0.10 | housing_diff_quantile < -.10) %>%
+  ggplot(mapping = aes(x = perc_person_of_color_2019, y = housing_diff_quantile)) + 
+  geom_hex(mapping = aes(fill = ..count..)) + 
+  scale_x_continuous(limits = c(0, 1),
+                     breaks = 0:4 * 0.25) + 
+  scale_y_continuous(limits = c(-1, 1),
+                     breaks = -2:2 * 0.5) + 
+  scale_fill_gradientn(labels = scales::comma) + 
+  labs(x = "Percent People of Color",
+       y = "Change in Housing Sub-Index Percentile Ranking") + 
+  scatter_grid() + 
+  theme(legend.position = "right",
+        legend.direction = "vertical")
+
+ggsave("perc_poc_housing.png")
+
+other_char %>%
+  filter(covid_diff_quantile > 0.10 | covid_diff_quantile < -.10) %>%
+  ggplot(mapping = aes(x = perc_low_income_jobs_lost_2019, y = covid_diff_quantile)) + 
   geom_hex(mapping = aes(fill = ..count..)) + 
   scale_x_continuous(limits = c(0, 0.28),
                      breaks = 0:4 * 0.07) + 
@@ -410,12 +429,29 @@ other_char %>%
                      breaks = -2:2 * 0.5) + 
   scale_fill_gradientn(labels = scales::comma) + 
   labs(x = "Percent Low Income Jobs Lost",
-       y = "Change in Total Index Percentile Ranking") + 
+       y = "Change in COVID Sub-Index Percentile Ranking") + 
   scatter_grid() + 
   theme(legend.position = "right",
         legend.direction = "vertical")
 
-ggsave("perc_low_income_jobs_lost.png")
+ggsave("perc_low_income_jobs_lost_covid.png")
+
+other_char %>%
+  filter(housing_diff_quantile > 0.10 | housing_diff_quantile < -.10) %>%
+  ggplot(mapping = aes(x = perc_low_income_jobs_lost_2019, y = housing_diff_quantile)) + 
+  geom_hex(mapping = aes(fill = ..count..)) + 
+  scale_x_continuous(limits = c(0, 0.28),
+                     breaks = 0:4 * 0.07) + 
+  scale_y_continuous(limits = c(-1, 1),
+                     breaks = -2:2 * 0.5) + 
+  scale_fill_gradientn(labels = scales::comma) + 
+  labs(x = "Percent Low Income Jobs Lost",
+       y = "Change in Housing Sub-Index Percentile Ranking") + 
+  scatter_grid() + 
+  theme(legend.position = "right",
+        legend.direction = "vertical")
+
+ggsave("perc_low_income_jobs_lost_housing.png")
 
 
 # ruca 
@@ -455,19 +491,85 @@ bigchangeruca <- combined %>%
   mutate(percent_total = bigchangetotal / counttotal,
          percent_housing = bigchangehousing / counthousing,
          percent_equity = bigchangeequity / countequity,
-         percent_covid = bigchangecovid / countcovid)
+         percent_covid = bigchangecovid / countcovid) %>%
+  mutate(ruca_names = case_when(ruca == 1 ~ "Metro area: Level 1",
+                                ruca == 2 ~ "Metro area: Level 2",
+                                ruca == 3 ~ "Metro area: Level 3",
+                                ruca == 4 ~ "Micro area: Level 1",
+                                ruca == 5 ~ "Micro area: Level 2",
+                                ruca == 6 ~ "Micro area: Level 3",
+                                ruca == 7 ~ "Small town core: Level 1",
+                                ruca == 8 ~ "Small town core: Level 2",
+                                ruca == 9 ~ "Small town core: Level 3",
+                                ruca == 10 ~ "Rural areas"))
+
+library(tidyverse)
 
 bigchangeruca %>% 
-  rownames_to_column("ruca") %>%
-  arrange(percent_total) %>%
-  mutate(ruca = factor(ruca, levels = .$ruca)) %>%
-  ggplot(aes(percent_total, ruca)) + 
-    geom_segment(aes(x = 0, xend = percent_total, y = ruca, yend = ruca)) + 
-    geom_point() + 
-    scale_x_continuous(limits = c(0,1)) + 
-    labs(x = NULL,
-         y = "Percent of Census Tracts that Changed by More than +/- 10 Pecent Points")
+  ggplot(mapping = aes(x = factor(ruca_names,
+                                  levels = c("Metro area: Level 1", "Metro area: Level 2",
+                                             "Metro area: Level 3", "Micro area: Level 1",
+                                             "Micro area: Level 2", "Micro area: Level 3",
+                                             "Small town core: Level 1", "Small town core: Level 2",
+                                             "Small town core: Level 3", "Rural areas")), y = percent_total)) + 
+  geom_col() + 
+  labs(x = "Share of Census Tracts",
+       y = NULL) + 
+  scale_y_continuous(labels = function(x) paste0(x*100, "%")) +
+  coord_flip() + 
+  labs(title = "Total Index",
+       subtitle = "Share of All Census Tracts that Changed by More than +/- 10 Percentile Points")
+
+ggsave("ruca_total.png")
 
 bigchangeruca %>% 
-  ggplot(mapping = aes(x = factor(ruca), y = percent_housing)) + 
-  geom_col() 
+  ggplot(mapping = aes(x = factor(ruca_names,
+                                  levels = c("Metro area: Level 1", "Metro area: Level 2",
+                                             "Metro area: Level 3", "Micro area: Level 1",
+                                             "Micro area: Level 2", "Micro area: Level 3",
+                                             "Small town core: Level 1", "Small town core: Level 2",
+                                             "Small town core: Level 3", "Rural areas")), y = percent_housing)) + 
+  geom_col() + 
+  labs(x = "Share of Census Tracts",
+       y = NULL) + 
+  scale_y_continuous(labels = function(x) paste0(x*100, "%")) +
+  coord_flip() + 
+  labs(title = "Housing Sub-Index",
+       subtitle = "Share of All Census Tracts that Changed by More than +/- 10 Percentile Points")
+
+ggsave("ruca_housing.png")
+
+bigchangeruca %>% 
+  ggplot(mapping = aes(x = factor(ruca_names,
+                                  levels = c("Metro area: Level 1", "Metro area: Level 2",
+                                             "Metro area: Level 3", "Micro area: Level 1",
+                                             "Micro area: Level 2", "Micro area: Level 3",
+                                             "Small town core: Level 1", "Small town core: Level 2",
+                                             "Small town core: Level 3", "Rural areas")), y = percent_equity)) + 
+  geom_col() + 
+  labs(x = "Share of Census Tracts",
+       y = NULL) + 
+  scale_y_continuous(labels = function(x) paste0(x*100, "%")) +
+  coord_flip() + 
+  labs(title = "Equity Sub-Index",
+       subtitle = "Share of All Census Tracts that Changed by More than +/- 10 Percentile Points")
+
+ggsave("ruca_equity.png")
+
+bigchangeruca %>% 
+  ggplot(mapping = aes(x = factor(ruca_names,
+                                  levels = c("Metro area: Level 1", "Metro area: Level 2",
+                                             "Metro area: Level 3", "Micro area: Level 1",
+                                             "Micro area: Level 2", "Micro area: Level 3",
+                                             "Small town core: Level 1", "Small town core: Level 2",
+                                             "Small town core: Level 3", "Rural areas")), y = percent_covid)) + 
+  geom_col() + 
+  labs(x = "Share of Census Tracts",
+       y = NULL) + 
+  scale_y_continuous(labels = function(x) paste0(x*100, "%")) +
+  coord_flip() + 
+  labs(title = "COVID Sub-Index",
+       subtitle = "Share of All Census Tracts that Changed by More than +/- 10 Percentile Points")
+
+ggsave("ruca_covid.png")
+  
