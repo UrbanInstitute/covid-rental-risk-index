@@ -8,6 +8,7 @@ library(readxl)
 library(urbnthemes)
 library(scales)
 library(urbnmapr)
+library(hexbin)
 
 set_urbn_defaults(style = "map")
 options(scipen=999)
@@ -29,7 +30,8 @@ ERAP_2018_main <- ERAP_2018 %>%
 ERAP_2019 <- read_csv("data/intermediate-data/housing_index_state_adj_2019.csv")
 ERAP_2019_main <- ERAP_2019 %>%
   select(GEOID, housing_index, covid_index, equity_index, total_index, housing_index_quantile, 
-         covid_index_quantile, equity_index_quantile, total_index_quantile) %>%
+         covid_index_quantile, equity_index_quantile, total_index_quantile, perc_person_of_color,
+         perc_low_income_jobs_lost) %>%
   rename_all(paste0, "_2019")
 
 ### Summarizing changes in percentiles for census tracts -------
@@ -249,47 +251,223 @@ summary_table_decile %>%
 
 # analysis on census tracts that changed by more than +/- 10 percent
 bigchange <- combined %>%
-  mutate(morethan10 = case_when(total_diff_quantile > 0.10 | total_diff_quantile < -0.10 ~ 1,
+  mutate(bigchangetotal = case_when(total_diff_quantile > 0.10 | total_diff_quantile < -0.10 ~ 1,
                                 total_diff_quantile <= 0.10 & total_diff_quantile >= -0.10 ~ 0,
                                 T ~ NA_real_),
-         count = case_when(morethan10 == 0 | morethan10 == 1 ~ 1,
+         bigchangehousing = case_when(housing_diff_quantile > 0.10 | housing_diff_quantile < -0.10 ~ 1,
+                                      housing_diff_quantile <= 0.10 & housing_diff_quantile >= -0.10 ~ 0,
+                                      T ~ NA_real_),
+         bigchangeequity = case_when(equity_diff_quantile > 0.10 | equity_diff_quantile < -0.10 ~ 1,
+                                      equity_diff_quantile <= 0.10 & equity_diff_quantile >= -0.10 ~ 0,
+                                      T ~ NA_real_),
+         bigchangecovid = case_when(covid_diff_quantile > 0.10 | covid_diff_quantile < -0.10 ~ 1,
+                                     covid_diff_quantile <= 0.10 & covid_diff_quantile >= -0.10 ~ 0,
+                                     T ~ NA_real_),
+         counttotal = case_when(bigchangetotal == 0 | bigchangetotal == 1 ~ 1,
                            T ~ NA_real_),
+         counthousing = case_when(bigchangehousing == 0 | bigchangehousing == 1 ~ 1,
+                                T ~ NA_real_),
+         countequity = case_when(bigchangeequity == 0 | bigchangeequity == 1 ~ 1,
+                                T ~ NA_real_),
+         countcovid = case_when(bigchangecovid == 0 | bigchangecovid == 1 ~ 1,
+                                T ~ NA_real_),
          county = substr(GEOID_2019, 1, 5)) %>%
   group_by(county) %>%
-  summarize(morethan10 = sum(morethan10),
-            count = sum(count)) %>%
-  mutate(percent = morethan10 / count)
+  summarize(bigchangetotal = sum(bigchangetotal),
+            bigchangehousing = sum(bigchangehousing),
+            bigchangeequity = sum(bigchangeequity),
+            bigchangecovid = sum(bigchangecovid),
+            counttotal = sum(counttotal),
+            counthousing = sum(counthousing),
+            countequity = sum(countequity),
+            countcovid = sum(countcovid)) %>%
+  mutate(percent_total = bigchangetotal / counttotal,
+         percent_housing = bigchangehousing / counthousing,
+         percent_equity = bigchangeequity / countequity,
+         percent_covid = bigchangecovid / countcovid)
 
-test <- sum(bigchange$count)
+test <- sum(bigchange$counttotal)
 
 countymap <- left_join(my_counties, bigchange, by = c("county_fips" = "county"))
 
 final_levels <- c("0%","0%-25%","25%-50%","50%-75%","75%-100%")
 
-
+# total map
 ggplot() + 
   geom_sf(my_counties, mapping = aes(), fill = "#dfdfdf", color = "#ffffff", size = .05) + 
   coord_sf(datum = NA) + 
-  geom_sf(countymap %>% filter(!is.na(percent)), mapping = aes(fill=percent %>% cut(breaks = c(0,0.00001,0.25,0.5,0.75,1), include.lowest = T)), color = "#ffffff", size = .05) + 
+  geom_sf(countymap %>% filter(!is.na(percent_total)), mapping = aes(fill=percent_total %>% cut(breaks = c(0,0.00001,0.25,0.5,0.75,1), include.lowest = T)), color = "#ffffff", size = .05) + 
   coord_sf(datum = NA) + 
   scale_fill_manual(values = urban_colors, labels = final_levels) +
   geom_sf(my_states, mapping = aes(), fill = NA, size = 1, color = "white") + 
   theme(plot.margin = margin(t=0, b=0, l=0),
         legend.title = element_blank(),
-        plot.caption = element_text(hjust = 0))
+        plot.caption = element_text(hjust = 0)) + 
+  labs(title = "Total ERAP Index",
+       subtitle = "Share of Census Tracts that Changed by More than +/- 10 Percentile Points")
 
-ggsave("shareshifts.png")
+ggsave("totalshifts.png")
+
+# housing map
+ggplot() + 
+  geom_sf(my_counties, mapping = aes(), fill = "#dfdfdf", color = "#ffffff", size = .05) + 
+  coord_sf(datum = NA) + 
+  geom_sf(countymap %>% filter(!is.na(percent_housing)), mapping = aes(fill=percent_housing %>% cut(breaks = c(0,0.00001,0.25,0.5,0.75,1), include.lowest = T)), color = "#ffffff", size = .05) + 
+  coord_sf(datum = NA) + 
+  scale_fill_manual(values = urban_colors, labels = final_levels) +
+  geom_sf(my_states, mapping = aes(), fill = NA, size = 1, color = "white") + 
+  theme(plot.margin = margin(t=0, b=0, l=0),
+        legend.title = element_blank(),
+        plot.caption = element_text(hjust = 0)) + 
+  labs(title = "Housing Sub-Index",
+       subtitle = "Share of Census Tracts that Changed by More than +/- 10 Percentile Points")
+
+ggsave("housingshifts.png")
+
+# equity map
+ggplot() + 
+  geom_sf(my_counties, mapping = aes(), fill = "#dfdfdf", color = "#ffffff", size = .05) + 
+  coord_sf(datum = NA) + 
+  geom_sf(countymap %>% filter(!is.na(percent_equity)), mapping = aes(fill=percent_equity %>% cut(breaks = c(0,0.00001,0.25,0.5,0.75,1), include.lowest = T)), color = "#ffffff", size = .05) + 
+  coord_sf(datum = NA) + 
+  scale_fill_manual(values = urban_colors, labels = final_levels) +
+  geom_sf(my_states, mapping = aes(), fill = NA, size = 1, color = "white") + 
+  theme(plot.margin = margin(t=0, b=0, l=0),
+        legend.title = element_blank(),
+        plot.caption = element_text(hjust = 0)) + 
+  labs(title = "Equity Sub-Index",
+       subtitle = "Share of Census Tracts that Changed by More than +/- 10 Percentile Points")
+
+ggsave("equityshifts.png")
+
+# covid map
+ggplot() + 
+  geom_sf(my_counties, mapping = aes(), fill = "#dfdfdf", color = "#ffffff", size = .05) + 
+  coord_sf(datum = NA) + 
+  geom_sf(countymap %>% filter(!is.na(percent_covid)), mapping = aes(fill=percent_covid %>% cut(breaks = c(0,0.00001,0.25,0.5,0.75,1), include.lowest = T)), color = "#ffffff", size = .05) + 
+  coord_sf(datum = NA) + 
+  scale_fill_manual(values = urban_colors, labels = final_levels) +
+  geom_sf(my_states, mapping = aes(), fill = NA, size = 1, color = "white") + 
+  theme(plot.margin = margin(t=0, b=0, l=0),
+        legend.title = element_blank(),
+        plot.caption = element_text(hjust = 0)) + 
+  labs(title = "COVID Sub-Index",
+       subtitle = "Share of Census Tracts that Changed by More than +/- 10 Percentile Points")
+
+ggsave("covidshifts.png")
 
 
 ### Merge in other characteristics ----------
+
+set_urbn_defaults(style = "print")
 
 ruca <- read_excel("data/public-data/ruca2010revised.xlsx", range = "A2:I74004")
 
 ruca_main <- ruca %>%
   rename(GEOID = 4, ruca = 5)
 
+other_char <- combined %>%
+  left_join(ruca_main, by = c("GEOID_2019" = "GEOID"))
 
 
+other_char %>%
+  ggplot(mapping = aes(x = total_diff_quantile, y = perc_person_of_color_2019)) + 
+  geom_hex(mapping = aes(fill = ..count..)) + 
+  scale_x_continuous(limits = c(-1, 1),
+                    breaks = -2:2 * 0.5) + 
+  scale_y_continuous(limits = c(0, 1),
+                     breaks = 0:4 * 0.25) + 
+  scale_fill_gradientn(labels = scales::comma) + 
+  labs(x = "Change in Total Index Percentile Ranking",
+       y = "Percent People of Color") + 
+  scatter_grid() + 
+  theme(legend.position = "right",
+        legend.direction = "vertical")
+
+# % POC
+other_char %>%
+  ggplot(mapping = aes(x = perc_person_of_color_2019, y = total_diff_quantile)) + 
+  geom_hex(mapping = aes(fill = ..count..)) + 
+  scale_x_continuous(limits = c(0, 1),
+                     breaks = 0:4 * 0.25) + 
+  scale_y_continuous(limits = c(-1, 1),
+                     breaks = -2:2 * 0.5) + 
+  scale_fill_gradientn(labels = scales::comma) + 
+  labs(x = "Percent People of Color",
+       y = "Change in Total Index Percentile Ranking") + 
+  scatter_grid() + 
+  theme(legend.position = "right",
+        legend.direction = "vertical")
+
+ggsave("perc_poc.png")
+
+other_char %>%
+  ggplot(mapping = aes(x = perc_low_income_jobs_lost_2019, y = total_diff_quantile)) + 
+  geom_hex(mapping = aes(fill = ..count..)) + 
+  scale_x_continuous(limits = c(0, 0.28),
+                     breaks = 0:4 * 0.07) + 
+  scale_y_continuous(limits = c(-1, 1),
+                     breaks = -2:2 * 0.5) + 
+  scale_fill_gradientn(labels = scales::comma) + 
+  labs(x = "Percent Low Income Jobs Lost",
+       y = "Change in Total Index Percentile Ranking") + 
+  scatter_grid() + 
+  theme(legend.position = "right",
+        legend.direction = "vertical")
+
+ggsave("perc_low_income_jobs_lost.png")
 
 
+# ruca 
 
+bigchangeruca <- combined %>%
+  mutate(bigchangetotal = case_when(total_diff_quantile > 0.10 | total_diff_quantile < -0.10 ~ 1,
+                                    total_diff_quantile <= 0.10 & total_diff_quantile >= -0.10 ~ 0,
+                                    T ~ NA_real_),
+         bigchangehousing = case_when(housing_diff_quantile > 0.10 | housing_diff_quantile < -0.10 ~ 1,
+                                      housing_diff_quantile <= 0.10 & housing_diff_quantile >= -0.10 ~ 0,
+                                      T ~ NA_real_),
+         bigchangeequity = case_when(equity_diff_quantile > 0.10 | equity_diff_quantile < -0.10 ~ 1,
+                                     equity_diff_quantile <= 0.10 & equity_diff_quantile >= -0.10 ~ 0,
+                                     T ~ NA_real_),
+         bigchangecovid = case_when(covid_diff_quantile > 0.10 | covid_diff_quantile < -0.10 ~ 1,
+                                    covid_diff_quantile <= 0.10 & covid_diff_quantile >= -0.10 ~ 0,
+                                    T ~ NA_real_),
+         counttotal = case_when(bigchangetotal == 0 | bigchangetotal == 1 ~ 1,
+                                T ~ NA_real_),
+         counthousing = case_when(bigchangehousing == 0 | bigchangehousing == 1 ~ 1,
+                                  T ~ NA_real_),
+         countequity = case_when(bigchangeequity == 0 | bigchangeequity == 1 ~ 1,
+                                 T ~ NA_real_),
+         countcovid = case_when(bigchangecovid == 0 | bigchangecovid == 1 ~ 1,
+                                T ~ NA_real_)) %>%
+  left_join(ruca_main, by = c("GEOID_2019" = "GEOID")) %>%
+  filter(ruca != 99 & !is.na(ruca)) %>%
+  group_by(ruca) %>%
+  summarize(bigchangetotal = sum(bigchangetotal),
+            bigchangehousing = sum(bigchangehousing),
+            bigchangeequity = sum(bigchangeequity),
+            bigchangecovid = sum(bigchangecovid),
+            counttotal = sum(counttotal),
+            counthousing = sum(counthousing),
+            countequity = sum(countequity),
+            countcovid = sum(countcovid)) %>%
+  mutate(percent_total = bigchangetotal / counttotal,
+         percent_housing = bigchangehousing / counthousing,
+         percent_equity = bigchangeequity / countequity,
+         percent_covid = bigchangecovid / countcovid)
+
+bigchangeruca %>% 
+  rownames_to_column("ruca") %>%
+  arrange(percent_total) %>%
+  mutate(ruca = factor(ruca, levels = .$ruca)) %>%
+  ggplot(aes(percent_total, ruca)) + 
+    geom_segment(aes(x = 0, xend = percent_total, y = ruca, yend = ruca)) + 
+    geom_point() + 
+    scale_x_continuous(limits = c(0,1)) + 
+    labs(x = NULL,
+         y = "Percent of Census Tracts that Changed by More than +/- 10 Pecent Points")
+
+bigchangeruca %>% 
+  ggplot(mapping = aes(x = factor(ruca), y = percent_housing)) + 
+  geom_col() 
