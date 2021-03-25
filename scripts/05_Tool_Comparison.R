@@ -32,7 +32,8 @@ ERAP_2019_main <- ERAP_2019 %>%
          covid_index_quantile, equity_index_quantile, total_index_quantile) %>%
   rename_all(paste0, "_2019")
 
-# merge tools
+### Summarizing changes in percentiles for census tracts -------
+
 combined <- ERAP_2019_main %>%
   left_join(ERAP_2018_main, by = c("GEOID_2019" = "GEOID_2018")) %>%
   filter(!is.na(housing_index_2018) & !is.na(covid_index_2018) & !is.na(equity_index_2018) & !is.na(total_index_2018)) %>%
@@ -244,7 +245,7 @@ summary_table_decile <- table_housing_decile %>%
 summary_table_decile %>%
   write_csv("data/intermediate-data/decile change.csv")
 
-
+### Mapping census tracts that changed by more than +/- 10 percent, at county level -------------
 
 # analysis on census tracts that changed by more than +/- 10 percent
 bigchange <- combined %>%
@@ -279,6 +280,13 @@ ggplot() +
 
 ggsave("shareshifts.png")
 
+
+### Merge in other characteristics ----------
+
+ruca <- read_excel("data/public-data/ruca2010revised.xlsx", range = "A2:I74004")
+
+ruca_main <- ruca %>%
+  rename(GEOID = 4, ruca = 5)
 
 
 
