@@ -28,3 +28,26 @@ indicators_combined <- ERAP_2019_indicators %>%
          jobslost_diff = perc_low_income_jobs_lost_2019 - perc_low_income_jobs_lost_2018,
          nohinsure_diff = perc_no_hinsure_2019 - perc_no_hinsure_2018,
         )
+  
+
+##absolute values of difference
+indicators_combined$cost_burden_abs <-abs(indicators_combined$cost_burden_diff) 
+indicators_combined$overcrowding_abs <- abs(indicators_combined$overcrowding_diff)
+indicators_combined$poverty_abs <- abs(indicators_combined$poverty_diff)
+indicators_combined$renters_abs <- abs(indicators_combined$renters_diff)
+indicators_combined$unemployment_abs <- abs(indicators_combined$unemployment_diff)
+indicators_combined$jobslost_abs <- abs(indicators_combined$jobslost_diff)
+indicators_combined$nohinsure_abs <- abs(indicators_combined$nohinsure_diff)
+
+##sum by index 
+indicators_diff <- indicators_combined %>%
+                   select(poverty_abs, renters_abs, cost_burden_abs,
+                           overcrowding_abs, unemployment_abs, jobslost_abs, nohinsure_abs)%>%
+                   mutate (housing_total_change = poverty_abs + renters_abs + cost_burden_abs +
+                           overcrowding_abs + unemployment_abs) %>%
+                   mutate (covid_total_change = nohinsure_abs + `jobslost_abs`)
+                      
+
+Covid_indicators_diff <- indicators_combined %>%
+                         select(`jobslost_abs` + nohinsure_abs) %>%
+                         mutate (covid_total_change = nohinsure_abs + `jobslost_abs`)
