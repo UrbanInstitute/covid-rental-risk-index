@@ -37,8 +37,6 @@ indicators_combined <- ERAP_2019_indicators %>%
                                        jobslost_diff < 0.0 ~ "-",)) %>%
      mutate(hnoinsure_direction = case_when(nohinsure_diff > 0.0 ~ "+",
                                       nohinsure_diff < 0.0 ~ "-",))
-                                              
-                                           
 
 ##absolute values of difference
 indicators_combined$cost_burden_abs <-abs(indicators_combined$cost_burden_diff) 
@@ -52,10 +50,10 @@ indicators_combined$nohinsure_abs <- abs(indicators_combined$nohinsure_diff)
 ##sum by index 
 indicators_diff <- indicators_combined %>%
                    select(poverty_abs, renters_abs, cost_burden_abs,
-                           overcrowding_abs, unemployment_abs, jobslost_abs, nohinsure_abs)%>%
+                           overcrowding_abs, unemployment_abs, jobslost_abs, nohinsure_abs, costburden_direction,
+                          jobslost_direction, hnoinsure_direction)%>%
                    mutate (housing_total_change = poverty_abs + renters_abs + cost_burden_abs +
                            overcrowding_abs + unemployment_abs) %>%
-
                    mutate (covid_total_change = nohinsure_abs + `jobslost_abs`)
                       
 ##write out
