@@ -1,3 +1,6 @@
+
+## changes in housing and covid indexes indicators 
+
 # 2018 indicator values 
 ERAP_2018 <- read_csv("data/intermediate-data/housing_index_state_adj_2018.csv") 
 
@@ -45,8 +48,28 @@ indicators_diff <- indicators_combined %>%
                            overcrowding_abs, unemployment_abs, jobslost_abs, nohinsure_abs)%>%
                    mutate (housing_total_change = poverty_abs + renters_abs + cost_burden_abs +
                            overcrowding_abs + unemployment_abs) %>%
+
                    mutate (covid_total_change = nohinsure_abs + `jobslost_abs`)
                       
 ##write out
 indicators_diff %>%
-                  write_csv("data/intermediate-data/housing_covid_indicators_change.csv")
+write_csv("data/intermediate-data/housing_covid_indicators_change.csv")
+
+view(indicators_diff)
+
+##Census tracts with greatest change & corresponding cities
+view(countymap)
+
+##sort by bigchangetotal and select top 10
+largest_total_change <- countymap %>%
+                        arrange(desc(bigchangetotal)) %>%
+                        slice(1:10)
+largest_housing_change <- countymap %>%
+                          arrange(desc(bigchangehousing)) %>%
+                          slice(1:10)
+largest_equity_change <- countymap %>%
+                          arrange(desc(bigchangeequity)) %>%
+                          slice(1:10)
+largest_covid_change <- countymap %>%
+                         arrange(desc(bigchangecovid)) %>%
+                         slice(1:10)  
