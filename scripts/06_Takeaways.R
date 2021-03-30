@@ -30,8 +30,15 @@ indicators_combined <- ERAP_2019_indicators %>%
          unemployment_diff = perc_unemployed_laborforce_2019 - perc_unemployed_laborforce_2018,
          jobslost_diff = perc_low_income_jobs_lost_2019 - perc_low_income_jobs_lost_2018,
          nohinsure_diff = perc_no_hinsure_2019 - perc_no_hinsure_2018,
-        )
-  
+           ) %>%
+      mutate(costburden_direction = case_when(cost_burden_diff > 0.0 ~ "+",
+                                              cost_burden_diff < 0.0 ~ "-")) %>%
+      mutate(jobslost_direction = case_when(jobslost_diff > 0.0 ~ "+",
+                                       jobslost_diff < 0.0 ~ "-",)) %>%
+     mutate(hnoinsure_direction = case_when(nohinsure_diff > 0.0 ~ "+",
+                                      nohinsure_diff < 0.0 ~ "-",))
+                                              
+                                           
 
 ##absolute values of difference
 indicators_combined$cost_burden_abs <-abs(indicators_combined$cost_burden_diff) 
@@ -60,16 +67,16 @@ view(indicators_diff)
 ##Census tracts with greatest change & corresponding cities
 view(countymap)
 
-##sort by bigchangetotal and select top 10
+##sort by percent change and select top 10
 largest_total_change <- countymap %>%
-                        arrange(desc(bigchangetotal)) %>%
+                        arrange(desc(percent_total)) %>%
                         slice(1:10)
 largest_housing_change <- countymap %>%
-                          arrange(desc(bigchangehousing)) %>%
+                          arrange(desc(percent_housing)) %>%
                           slice(1:10)
 largest_equity_change <- countymap %>%
-                          arrange(desc(bigchangeequity)) %>%
+                          arrange(desc(percent_equity)) %>%
                           slice(1:10)
 largest_covid_change <- countymap %>%
-                         arrange(desc(bigchangecovid)) %>%
+                         arrange(desc(percent_covid)) %>%
                          slice(1:10)  
