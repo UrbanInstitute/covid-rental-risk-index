@@ -47,7 +47,6 @@ indicators_diff <- indicators_combined %>%
                            overcrowding_abs + unemployment_abs) %>%
                    mutate (covid_total_change = nohinsure_abs + `jobslost_abs`)
                       
-
-Covid_indicators_diff <- indicators_combined %>%
-                         select(`jobslost_abs` + nohinsure_abs) %>%
-                         mutate (covid_total_change = nohinsure_abs + `jobslost_abs`)
+##write out
+indicators_diff %>%
+                  write_csv("data/intermediate-data/housing_covid_indicators_change.csv")
