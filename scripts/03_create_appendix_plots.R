@@ -6,7 +6,7 @@ library(urbnthemes)
 library(grid)
 library(gridExtra)
 
-set_urbn_defaults()
+set_urbn_defaults(style = "print")
 final_data <- read_csv("https://ui-covid-housing-risk-indicators.s3.amazonaws.com/housing_index_state_adj.csv")
 
 # Create correlation matrix of indicators for appendix
@@ -121,10 +121,9 @@ index_dists <- final_data %>%
   facet_wrap(~index, ncol = 1) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 7)) +
   scale_y_continuous(labels = scales::comma_format()) +
-  theme(
-    plot.title = ggplot2::element_text(size = 11), 
-    plot.subtitle = ggplot2::element_text(size = 9.5)) +
+  theme(strip.text = element_text(face = "plain"),
+        plot.title = element_text(face = "plain")) +
   labs(title = "Index Distributions among all US Census Tracts", x = "Index value", y = "") 
 
 
-ggsave(paste0("output/appendix/index_histograms.png"), dpi = 1000, height = 8, width = 6, units = c("in"))
+ggsave(paste0("output/appendix/index_histograms_plain.png"), dpi = 1000, height = 8, width = 6, units = c("in"))
