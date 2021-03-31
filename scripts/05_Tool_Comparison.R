@@ -27,7 +27,7 @@ ERAP_2018_main <- ERAP_2018 %>%
   rename_all(paste0, "_2018")
 
 # 2019 index values
-ERAP_2019 <- read_csv("data/intermediate-data/housing_index_state_adj_2019_ajjit.csv")
+ERAP_2019 <- read_csv("https://ui-covid-housing-risk-indicators.s3.amazonaws.com/housing_index_state_adj.csv")
 ERAP_2019_main <- ERAP_2019 %>%
   select(GEOID, housing_index, covid_index, equity_index, total_index, housing_index_quantile, 
          covid_index_quantile, equity_index_quantile, total_index_quantile, perc_person_of_color,
@@ -572,4 +572,85 @@ bigchangeruca %>%
        subtitle = "Share of All Census Tracts that Changed by More than +/- 10 Percentile Points")
 
 ggsave("ruca_covid.png")
+
+
+### Comparing improvements and worsening conditions  -------
+
+countydirection <- ERAP_2019_main %>%
+  left_join(ERAP_2018_main, by = c("GEOID_2019" = "GEOID_2018")) %>%
+  filter(!is.na(housing_index_2018) & !is.na(covid_index_2018) & !is.na(equity_index_2018) & !is.na(total_index_2018)) %>%
+  mutate(county = substr(GEOID_2019, 1, 5)) %>%
+  group_by(county) %>%
+  summarize(housing_index_2019_avg = mean(housing_index_2019),
+            housing_index_2018_avg = mean(housing_index_2018),
+            covid_index_2019_avg = mean(covid_index_2019),
+            covid_index_2018_avg = mean(covid_index_2018),
+            equity_index_2019_avg = mean(equity_index_2019),
+            equity_index_2018_avg = mean(equity_index_2018),
+            total_index_2019_avg = mean(total_index_2019),
+            total_index_2018_avg = mean(total_index_2018)) %>%
+  ungroup() %>%
+  mutate(housing_avg_diff = housing_index_2019_avg - housing_index_2018_avg,
+         covid_avg_diff = covid_index_2019_avg - covid_index_2018_avg,
+         equity_avg_diff = equity_index_2019_avg - equity_index_2018_avg,
+         total_avg_diff = total_index_2019_avg - total_index_2018_avg,
+         groupingvar_housing = case_when(housing_avg_diff > 0 ~ "Improvement",
+                                         housing_avg_diff == 0 ~ "No Change",
+                                         housing_avg_diff < 0 ~ "Worsening",
+                                         T ~ NA_character_),
+         groupingvar_covid = case_when(covid_avg_diff > 0 ~ "Improvement",
+                                       covid_avg_diff == 0 ~ "No Change",
+                                       covid_avg_diff < 0 ~ "Worsening",
+                                         T ~ NA_character_),
+         groupingvar_equity = case_when(equity_avg_diff > 0 ~ "Improvement",
+                                        equity_avg_diff == 0 ~ "No Change",
+                                        equity_avg_diff < 0 ~ "Worsening",
+                                         T ~ NA_character_),
+         groupingvar_total = case_when(total_avg_diff > 0 ~ "Improvement",
+                                       total_avg_diff == 0 ~ "No Change",
+                                       total_avg_diff < 0 ~ "Worsening",
+                                         T ~ NA_character_)) 
+
+
+
+countymap_direction <- left_join(my_counties, countydirection, by = c("county_fips" = "county"))
+
+#final_levels <- c("0%","0%-25%","25%-50%","50%-75%","75%-100%")
+
+# housing map
+ggplot() + 
+  geom_sf(my_counties, mapping = aes(), fill = "#dfdfdf", color = "#ffffff", size = .05) + 
+  coord_sf(datum = NA) + 
+  geom_sf(countymap_direction %>% filter(!is.na(housing_avg_diff)), mapping = aes(fill=housing_avg_diff), color = "#ffffff", size = .05) + 
+  coord_sf(datum = NA) + 
+  scale_colour_gradient2(low = "#DB2B27",
+                         mid = "#ffffff",
+                         high = "0A4C6A",
+                         midpoint = 0,
+                         aesthetics = "colour") +
+  geom_sf(my_states, mapping = aes(), fill = NA, size = 1, color = "white") + 
+  theme(plot.margin = margin(t=0, b=0, l=0),
+        legend.title = element_blank(),
+        plot.caption = element_text(hjust = 0)) + 
+  labs(title = "Housing Sub-Index",
+       subtitle = "Counties with Improvements (+) or Worsening Conditions (-)")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   
