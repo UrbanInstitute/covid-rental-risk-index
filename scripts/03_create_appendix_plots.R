@@ -7,7 +7,7 @@ library(grid)
 library(gridExtra)
 
 set_urbn_defaults()
-final_data <- read_csv("data/intermediate-data/housing_index_state_adj.csv")
+final_data <- read_csv("https://ui-covid-housing-risk-indicators.s3.amazonaws.com/housing_index_state_adj.csv")
 
 # Create correlation matrix of indicators for appendix
 indicator_corr_matrix <- final_data %>%
@@ -43,7 +43,7 @@ indicator_corr <- ggcorrplot(indicator_corr_matrix,
 
   ) +
   labs(
-    y = "", x = "Indicator",
+    y = "", x = "",
     fill = "Correlation"
   )
 
@@ -109,17 +109,22 @@ index_dists <- final_data %>%
   geom_text(
     data = max_value_of_index,
     aes(x = max_val, y = 200, label = max_val %>% scales::number(accuracy = 0.1)),
-    colour = palette_urbn_magenta[4], fontface = "bold", size = 3
+    colour = palette_urbn_main["black"] %>% unname(), 
+    fontface = "bold", size = 3
   ) +
   geom_text(
     data = max_value_of_index,
     aes(x = min_val, y = 200, label = min_val %>% scales::number(accuracy = 0.1)),
-    colour = palette_urbn_magenta[4], fontface = "bold", size = 3
+    colour = palette_urbn_main["black"] %>% unname(), 
+    fontface = "bold", size = 3
   ) +
   facet_wrap(~index, ncol = 1) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 7)) +
   scale_y_continuous(labels = scales::comma_format()) +
-  labs(title = "Index Distributions among all US Census Tracts", x = "Index value", y = "")
+  theme(
+    plot.title = ggplot2::element_text(size = 11), 
+    plot.subtitle = ggplot2::element_text(size = 9.5)) +
+  labs(title = "Index Distributions among all US Census Tracts", x = "Index value", y = "") 
 
 
 ggsave(paste0("output/appendix/index_histograms.png"), dpi = 1000, height = 8, width = 6, units = c("in"))
