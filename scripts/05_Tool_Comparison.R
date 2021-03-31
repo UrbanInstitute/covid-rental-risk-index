@@ -12,7 +12,8 @@ library(hexbin)
 
 set_urbn_defaults(style = "map")
 options(scipen=999)
-urban_colors <- c("#cfe8f3","#73bfe2","#1696d2","#0a4c6a","#000000","#dfdfdf")
+urban_colors <- c("#cfe8f3","#73bfe2","#1696d2","#0a4c6a","#000000","#dfdfdf","#DB2B27",
+                  "#ffffff","#0A4C6A")
 
 my_counties <- get_urbn_map("counties", sf=T)
 my_states <- get_urbn_map("states", sf=T)
@@ -623,11 +624,11 @@ ggplot() +
   coord_sf(datum = NA) + 
   geom_sf(countymap_direction %>% filter(!is.na(housing_avg_diff)), mapping = aes(fill=housing_avg_diff), color = "#ffffff", size = .05) + 
   coord_sf(datum = NA) + 
-  scale_colour_gradient2(low = "#DB2B27",
-                         mid = "#ffffff",
-                         high = "0A4C6A",
-                         midpoint = 0,
-                         aesthetics = "colour") +
+  scale_color_gradient2(low = "#DB2B27",
+                        mid = "#ffffff",
+                        high = "#0A4C6A",
+                        midpoint = 0,
+                        aesthetics = "colour") +
   geom_sf(my_states, mapping = aes(), fill = NA, size = 1, color = "white") + 
   theme(plot.margin = margin(t=0, b=0, l=0),
         legend.title = element_blank(),
@@ -635,15 +636,60 @@ ggplot() +
   labs(title = "Housing Sub-Index",
        subtitle = "Counties with Improvements (+) or Worsening Conditions (-)")
 
+# covid map
+ggplot() + 
+  geom_sf(my_counties, mapping = aes(), fill = "#dfdfdf", color = "#ffffff", size = .05) + 
+  coord_sf(datum = NA) + 
+  geom_sf(countymap_direction %>% filter(!is.na(covid_avg_diff)), mapping = aes(fill=covid_avg_diff), color = "#ffffff", size = .05) + 
+  coord_sf(datum = NA) + 
+  scale_color_gradient2(low = "#DB2B27",
+                        mid = "#ffffff",
+                        high = "#0A4C6A",
+                        midpoint = 0,
+                        aesthetics = "colour") +
+  geom_sf(my_states, mapping = aes(), fill = NA, size = 1, color = "white") + 
+  theme(plot.margin = margin(t=0, b=0, l=0),
+        legend.title = element_blank(),
+        plot.caption = element_text(hjust = 0)) + 
+  labs(title = "Covid Sub-Index",
+       subtitle = "Counties with Improvements (+) or Worsening Conditions (-)")
 
 
+# equity map
+ggplot() + 
+  geom_sf(my_counties, mapping = aes(), fill = "#dfdfdf", color = "#ffffff", size = .05) + 
+  coord_sf(datum = NA) + 
+  geom_sf(countymap_direction %>% filter(!is.na(equity_avg_diff)), mapping = aes(fill=equity_avg_diff), color = "#ffffff", size = .05) + 
+  coord_sf(datum = NA) + 
+  scale_color_gradient2(low = "#DB2B27",
+                        mid = "#ffffff",
+                        high = "#0A4C6A",
+                        midpoint = 0,
+                        aesthetics = "colour") +
+  geom_sf(my_states, mapping = aes(), fill = NA, size = 1, color = "white") + 
+  theme(plot.margin = margin(t=0, b=0, l=0),
+        legend.title = element_blank(),
+        plot.caption = element_text(hjust = 0)) + 
+  labs(title = "Equity Sub-Index",
+       subtitle = "Counties with Improvements (+) or Worsening Conditions (-)")
 
-
-
-
-
-
-
+#total map
+ggplot() + 
+  geom_sf(my_counties, mapping = aes(), fill = "#dfdfdf", color = "#ffffff", size = .05) + 
+  coord_sf(datum = NA) + 
+  geom_sf(countymap_direction %>% filter(!is.na(total_avg_diff)), mapping = aes(fill=total_avg_diff), color = "#ffffff", size = .05) + 
+  coord_sf(datum = NA) + 
+  scale_color_gradient2(low = "#DB2B27",
+                        mid = "#ffffff",
+                        high = "#0A4C6A",
+                        midpoint = 0,
+                        aesthetics = "colour") +
+  geom_sf(my_states, mapping = aes(), fill = NA, size = 1, color = "white") + 
+  theme(plot.margin = margin(t=0, b=0, l=0),
+        legend.title = element_blank(),
+        plot.caption = element_text(hjust = 0)) + 
+  labs(title = "Total Sub-Index",
+       subtitle = "Counties with Improvements (+) or Worsening Conditions (-)")
 
 
 
