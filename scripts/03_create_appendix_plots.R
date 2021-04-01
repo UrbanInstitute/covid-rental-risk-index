@@ -10,6 +10,7 @@ set_urbn_defaults(style = "print")
 final_data <- read_csv("https://ui-covid-housing-risk-indicators.s3.amazonaws.com/housing_index_state_adj.csv")
 
 # Create correlation matrix of indicators for appendix
+
 indicator_corr_matrix <- final_data %>%
   select(starts_with("perc")) %>%
   rename(
@@ -27,6 +28,8 @@ indicator_corr_matrix <- final_data %>%
   ) %>%
   # Need to look into missing data problems
   cor(use = "complete.obs")
+
+#print as pdf
 
 
 indicator_corr <- ggcorrplot(indicator_corr_matrix,
@@ -47,20 +50,25 @@ indicator_corr <- ggcorrplot(indicator_corr_matrix,
     fill = "Correlation"
   )
 
+
 # Paste together legend and plot so legend can be left aligned
+
 x <- grid.arrange(remove_legend(indicator_corr))
 legend <- grid.arrange(get_legend(indicator_corr))
 
 dir.create("output/appendix/", showWarnings = FALSE)
 ggsave("output/appendix/indicator_correlation.png", x, width = 8, height = 8, units = c("in"))
-
 ggsave("output/appendix/indicator_correlation_legend.png", legend, width = 6, height = 1, units = c("in"))
 
+ggsave(filename = "indicator_correlation.pdf", plot = x, width = 8, height = 8, device = cairo_pdf)
+ggsave(filename = "indicator_correlation_legend.pdf", plot = legend, width = 6, height = 1, device = cairo_pdf)
 
 
 # Create index distribution histograms for appendix
 
 # Get min/max values of each subindex/index for plotting with geom_text
+
+
 max_value_of_index <- final_data %>%
   pivot_longer(housing_index:total_index, names_to = "index") %>%
   group_by(index) %>%
@@ -127,3 +135,5 @@ index_dists <- final_data %>%
 
 
 ggsave(paste0("output/appendix/index_histograms_plain.png"), dpi = 1000, height = 8, width = 6, units = c("in"))
+ggsave(filename = "index_histograms_plain.pdf", plot = index_dists, width = 8, height = 6, device = cairo_pdf)
+urbnthemes
