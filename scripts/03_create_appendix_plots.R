@@ -60,8 +60,8 @@ dir.create("output/appendix/", showWarnings = FALSE)
 ggsave("output/appendix/indicator_correlation.png", x, width = 8, height = 8, units = c("in"))
 ggsave("output/appendix/indicator_correlation_legend.png", legend, width = 6, height = 1, units = c("in"))
 
-ggsave(filename = "indicator_correlation.pdf", plot = x, width = 8, height = 8, device = cairo_pdf)
-ggsave(filename = "indicator_correlation_legend.pdf", plot = legend, width = 6, height = 1, device = cairo_pdf)
+ggsave(filename = "indicator_correlation_2.pdf", plot = x, width = 8, height = 8, device = cairo_pdf, units = c("in"))
+ggsave(filename = "indicator_correlation_legend_2.pdf", plot = legend, width = 6, height = 1, device = cairo_pdf, units = c("in"))
 
 
 # Create index distribution histograms for appendix
@@ -117,13 +117,13 @@ index_dists <- final_data %>%
   geom_text(
     data = max_value_of_index,
     aes(x = max_val, y = 200, label = max_val %>% scales::number(accuracy = 0.1)),
-    colour = palette_urbn_main["black"] %>% unname(), 
+    colour = palette_urbn_magenta[5] %>% unname(), 
     fontface = "bold", size = 3
   ) +
   geom_text(
     data = max_value_of_index,
     aes(x = min_val, y = 200, label = min_val %>% scales::number(accuracy = 0.1)),
-    colour = palette_urbn_main["black"] %>% unname(), 
+    colour = palette_urbn_magenta[5] %>% unname(), 
     fontface = "bold", size = 3
   ) +
   facet_wrap(~index, ncol = 1) +
@@ -135,5 +135,4 @@ index_dists <- final_data %>%
 
 
 ggsave(paste0("output/appendix/index_histograms_plain.png"), dpi = 1000, height = 8, width = 6, units = c("in"))
-ggsave(filename = "index_histograms_plain.pdf", plot = index_dists, width = 8, height = 6, device = cairo_pdf)
-urbnthemes
+ggsave(filename = "index_histograms_magenta.pdf", plot = index_dists,device = cairo_pdf, width = 8, height = 6, units = c("in"), dpi = 1000)
