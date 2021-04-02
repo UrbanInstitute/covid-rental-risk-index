@@ -134,5 +134,5 @@ index_dists <- final_data %>%
   labs(title = "Index Distributions among all US Census Tracts", x = "Index value", y = "") 
 
 
-ggsave(paste0("output/appendix/index_histograms_plain.png"), dpi = 1000, height = 8, width = 6, units = c("in"))
-ggsave(filename = "index_histograms_magenta.pdf", plot = index_dists,device = cairo_pdf, width = 8, height = 6, units = c("in"), dpi = 1000)
+ggsave(paste0("output/appendix/index_histograms_magenta.png"), dpi = 1000, height = 8, width = 6, units = c("in"))
+ggsave(filename = "index_histograms_magenta.pdf", plot = index_dists,device = cairo_pdf, width = 6, height = 8, units = c("in"), dpi = 1000)
