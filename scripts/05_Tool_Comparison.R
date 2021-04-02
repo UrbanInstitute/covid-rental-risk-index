@@ -460,17 +460,17 @@ ggsave("perc_low_income_jobs_lost_housing.png")
 # ruca 
 
 bigchangeruca <- combined %>%
-  mutate(bigchangetotal = case_when(total_diff_quantile > 0.10 | total_diff_quantile < -0.10 ~ 1,
-                                    total_diff_quantile <= 0.10 & total_diff_quantile >= -0.10 ~ 0,
+  mutate(bigchangetotal = case_when(total_diff_quantile > 0.10 ~ 1,
+                                    total_diff_quantile <= 0.10 ~ 0,
                                     T ~ NA_real_),
-         bigchangehousing = case_when(housing_diff_quantile > 0.10 | housing_diff_quantile < -0.10 ~ 1,
-                                      housing_diff_quantile <= 0.10 & housing_diff_quantile >= -0.10 ~ 0,
+         bigchangehousing = case_when(housing_diff_quantile > 0.10 ~ 1,
+                                      housing_diff_quantile <= 0.10 ~ 0,
                                       T ~ NA_real_),
-         bigchangeequity = case_when(equity_diff_quantile > 0.10 | equity_diff_quantile < -0.10 ~ 1,
-                                     equity_diff_quantile <= 0.10 & equity_diff_quantile >= -0.10 ~ 0,
+         bigchangeequity = case_when(equity_diff_quantile > 0.10 ~ 1,
+                                     equity_diff_quantile <= 0.10 ~ 0,
                                      T ~ NA_real_),
-         bigchangecovid = case_when(covid_diff_quantile > 0.10 | covid_diff_quantile < -0.10 ~ 1,
-                                    covid_diff_quantile <= 0.10 & covid_diff_quantile >= -0.10 ~ 0,
+         bigchangecovid = case_when(covid_diff_quantile > 0.10 ~ 1,
+                                    covid_diff_quantile <= 0.10 ~ 0,
                                     T ~ NA_real_),
          counttotal = case_when(bigchangetotal == 0 | bigchangetotal == 1 ~ 1,
                                 T ~ NA_real_),
@@ -521,7 +521,7 @@ bigchangeruca %>%
   scale_y_continuous(labels = function(x) paste0(x*100, "%")) +
   coord_flip() + 
   labs(title = "Total Index",
-       subtitle = "Share of All Census Tracts that Changed by More than +/- 10 Percentile Points")
+       subtitle = "Share of All Census Tracts that Changed by More than +10 Percentile Points")
 
 ggsave("ruca_total.png")
 
@@ -538,7 +538,7 @@ bigchangeruca %>%
   scale_y_continuous(labels = function(x) paste0(x*100, "%")) +
   coord_flip() + 
   labs(title = "Housing Sub-Index",
-       subtitle = "Share of All Census Tracts that Changed by More than +/- 10 Percentile Points")
+       subtitle = "Share of All Census Tracts that Changed by More than +10 Percentile Points")
 
 ggsave("ruca_housing.png")
 
@@ -555,7 +555,7 @@ bigchangeruca %>%
   scale_y_continuous(labels = function(x) paste0(x*100, "%")) +
   coord_flip() + 
   labs(title = "Equity Sub-Index",
-       subtitle = "Share of All Census Tracts that Changed by More than +/- 10 Percentile Points")
+       subtitle = "Share of All Census Tracts that Changed by More than +10 Percentile Points")
 
 ggsave("ruca_equity.png")
 
@@ -572,7 +572,7 @@ bigchangeruca %>%
   scale_y_continuous(labels = function(x) paste0(x*100, "%")) +
   coord_flip() + 
   labs(title = "COVID Sub-Index",
-       subtitle = "Share of All Census Tracts that Changed by More than +/- 10 Percentile Points")
+       subtitle = "Share of All Census Tracts that Changed by More than +10 Percentile Points")
 
 ggsave("ruca_covid.png")
 
