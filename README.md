@@ -12,32 +12,32 @@ are composed of a few indicators. The indicators and the data sources they are
 pulled from are listed below. 
 
 ## Housing Instability Risk Subindex 
-- Share of people living in poverty: percentage of the population living below the federal poverty level during the past 12 months (~~~~2014–18~~2015-19 ACS data, table C17002)
+- Share of people living in poverty: percentage of the population living below the federal poverty level during the past 12 months (~~2014–18~~ 2015-19 ACS data, table C17002)
 
-- Share of renter-occupied housing units: percentage of occupied housing units that are renter-occupied (~~2014–18~~2015-19 ACS data, table B25003)
+- Share of renter-occupied housing units: percentage of occupied housing units that are renter-occupied (~~2014–18~~ 2015-19 ACS data, table B25003)
 
-- Share of severely cost-burdened low-income renters: percentage of households whose annual incomes are less than $35,000 and pay 50 percent or more of their incomes in gross rent (~~2014–18~~2015-19 ACS data, table B25074)
+- Share of severely cost-burdened low-income renters: percentage of households whose annual incomes are less than $35,000 and pay 50 percent or more of their incomes in gross rent (~~2014–18~~ 2015-19 ACS data, table B25074)
 
-- Share of severely overcrowded households: percentage of renter-occupied households with more than 1.5 occupants per room (~~2014–18~~2015-19 ACS data, table B25014)
+- Share of severely overcrowded households: percentage of renter-occupied households with more than 1.5 occupants per room (~~2014–18~~ 2015-19 ACS data, table B25014)
 
-- Share of unemployed people: percentage of the labor force that is unemployed (~~2014–18~~2015-19 ACS data, table B12006)
+- Share of unemployed people: percentage of the labor force that is unemployed (~~2014–18~~ 2015-19 ACS data, table B12006)
 
 ## COVID-19 Impact Subindex 
 
-- Share of adults without health insurance: percentage of noninstitutionalized people ages 19 to 64  who do not have health insurance (~~2014–18~~2015-19 ACS data, table C27012) 
+- Share of adults without health insurance: percentage of noninstitutionalized people ages 19 to 64  who do not have health insurance (~~2014–18~~ 2015-19 ACS data, table C27012) 
 
-- Share of low-income jobs lost to COVID-19: Among residents with jobs that pay $40,000 or less, the estimated percentage who have lost their jobs since Feb 2020.  (~~July 2020~~March 2021 update to Urban’s “Where Low-Income Jobs Are Being Lost to COVID-19”) 
+- Share of low-income jobs lost to COVID-19: Among residents with jobs that pay $40,000 or less, the estimated percentage who have lost their jobs since Feb 2020.  (~~July 2020~~ March 2021 update to Urban’s “Where Low-Income Jobs Are Being Lost to COVID-19”) 
 
 
 ## Equity Subindex
 
-- Share of people of color: percentage of people designated in the dataset as a race or ethnicity other than white, non-Hispanic (~~2014–18~~2015-19 ACS data, table B03002)
+- Share of people of color: percentage of people designated in the dataset as a race or ethnicity other than white, non-Hispanic (~~2014–18~~ 2015-19 ACS data, table B03002)
 
-- Share of extremely low–income renter households: percentage of renter-occupied households that earn 30 percent of area median income or less (~~2012–16~~2013-17 CHAS tabulations, table 8)
+- Share of extremely low–income renter households: percentage of renter-occupied households that earn 30 percent of area median income or less (~~2012–16~~ 2013-17 CHAS tabulations, table 8)
 
-- Share of households receiving public assistance: Percentage of households whose income in the past 12 months has included assistance from public benefit programs such as Temporary Assistance for Needy Families (TANF) or Supplemental Nutrition Assistance Program (SNAP) (~~2014–18~~2015-19 ACS data, table B19057)
+- Share of households receiving public assistance: Percentage of households whose income in the past 12 months has included assistance from public benefit programs such as Temporary Assistance for Needy Families (TANF) or Supplemental Nutrition Assistance Program (SNAP) (~~2014–18~~ 2015-19 ACS data, table B19057)
 
-- Share of people born outside the United States: percentage of the population born outside the United States (~~2014–18~~2015-19 ACS data, table B05002)
+- Share of people born outside the United States: percentage of the population born outside the United States (~~2014–18~~ 2015-19 ACS data, table B05002)
 
 
 
