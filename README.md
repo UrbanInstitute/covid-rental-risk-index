@@ -1,5 +1,5 @@
 # covid-rental-risk-index
- **Updated Mar 23, 2021** 
+ **Updated Apr 4, 2021 with newer data** 
 
 This repo contains the data, and code neccesary to generate the tract level 
 Rental Assistance Priority Indexes which power [this](https://www.urban.org/features/where-prioritize-emergency-rental-assistance-keep-renters-their-homes) interactive Urban
@@ -12,7 +12,7 @@ are composed of a few indicators. The indicators and the data sources they are
 pulled from are listed below. 
 
 ## Housing Instability Risk Subindex 
-- Share of people living in poverty: percentage of the population living below the federal poverty level during the past 12 months (~~~~2014–18~~2015-19~~2015-19 ACS data, table C17002)
+- Share of people living in poverty: percentage of the population living below the federal poverty level during the past 12 months (~~~~2014–18~~2015-19 ACS data, table C17002)
 
 - Share of renter-occupied housing units: percentage of occupied housing units that are renter-occupied (~~2014–18~~2015-19 ACS data, table B25003)
 
@@ -59,9 +59,9 @@ Below is a short description of the files in the `scripts\` folder:
   indicators to percentages using the relevant numerator/demoninator, then
   calculates the state indexed z-scores, and weighted subindex and Total index
   values. Note sometimes the Census FTP site may be down and this script will
-  error out with an error that looks something like `Error in
-  curl::curl_fetch_memory(url, handle = handle) : Could not resolve host:
-  api.census.gov`. If this happens, we suggest waiting a few minutes and trying
+  error out with a message that looks something like:
+  ```Error in curl::curl_fetch_memory(url, handle = handle) : Could not resolve host: api.census.gov```
+  If this happens, we suggest waiting a few minutes and trying
   again.
 
 - `02_generate_geographies.R`: This generates geojsons of counties, states, and
