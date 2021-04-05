@@ -12,7 +12,7 @@ library(urbnthemes)
 set_urbn_defaults()
 
 # Load variable metadata from ACS 5 yr
-vars_list <- load_variables(year = 2018, dataset = "acs5", cache = TRUE)
+vars_list <- load_variables(year = 2019, dataset = "acs5", cache = TRUE)
 
 # View table of all ACS variables in another tab
 #View(vars_list)
@@ -33,19 +33,20 @@ cb_vars <- map_dfr(
     geography = "tract",
     state = .,
     table = "B25074",
-    year = 2018,
+    year = 2019,
     survey = "acs5",
     output = "wide"
   )
 )
-# Calculate percent of housholds making under 35k who pay more than 50% of their
+
+# Calculate percent of households making under 35k who pay more than 50% of their
 # income on rent
 cb_stats <- cb_vars %>%
   # select ACS table variables w/ attached GEOID
   select(
     # These are all the peolpe making under 35k (denominator)
     B25074_002E, B25074_011E, B25074_020E,
-    # These are all the people making under 35k who pay more than 50% of thier income on rent (numerator)
+    # These are all the people making under 35k who pay more than 50% of their income on rent (numerator)
     B25074_009E, B25074_018E, B25074_027E, 
     # These are the people making under 35k for whom this metric wasn't computed
     # and they therefore need to be subtracted from the denominator
@@ -56,9 +57,10 @@ cb_stats <- cb_vars %>%
   mutate(perc_cost_burdened_under_35k = (B25074_009E + B25074_018E + B25074_027E) /
          (B25074_002E + B25074_011E + B25074_020E - B25074_010E - B25074_019E -
             B25074_028E),
-         #cd add
+         #if denominator is 0, then convert returned NaNs to 0 manually.
          perc_cost_burdened_under_35k =
-          if_else(B25074_002E + B25074_011E + B25074_020E == 0, 0, 
+          if_else(B25074_002E + B25074_011E + B25074_020E - B25074_010E - B25074_019E -
+                    B25074_028E == 0, 0, 
                   perc_cost_burdened_under_35k))
 
 # Overcrowding Indicator
@@ -68,7 +70,7 @@ oc_vars <- map_dfr(
     geography = "tract",
     state = .,
     table = "B25014",
-    year = 2018,
+    year = 2019,
     survey = "acs5",
     output = "wide"
   )
@@ -93,7 +95,7 @@ un_vars <- map_dfr(
     state = .,
     variables = NULL,
     table = "B12006",
-    year = 2018,
+    year = 2019,
     survey = "acs5",
     output = "wide"
   )
@@ -118,7 +120,7 @@ sr_vars <- map_dfr(
     state = .,
     variables = NULL,
     table = "B25003",
-    year = 2018,
+    year = 2019,
     survey = "acs5",
     output = "wide"
   )
@@ -145,7 +147,7 @@ pv_vars <- map_dfr(
     state = .,
     variables = NULL,
     table = "C17002",
-    year = 2018,
+    year = 2019,
     survey = "acs5",
     output = "wide"
   )
@@ -167,7 +169,7 @@ hinsure_vars <- map_dfr(
     geography = "tract",
     state = .,
     table = "C27012",
-    year = 2018,
+    year = 2019,
     survey = "acs5",
     output = "wide"
   )
@@ -196,7 +198,7 @@ race_vars <- map_dfr(
     geography = "tract",
     state = .,
     table = "B03002",
-    year = 2018,
+    year = 2019,
     survey = "acs5",
     output = "wide"
   )
@@ -226,7 +228,7 @@ pa_vars <- map_dfr(
     geography = "tract",
     state = .,
     table = "B19057",
-    year = 2018,
+    year = 2019,
     survey = "acs5",
     output = "wide"
   )
@@ -244,7 +246,7 @@ fb_vars <- map_dfr(
     geography = "tract",
     state = .,
     table = "B05002",
-    year = 2018,
+    year = 2019,
     survey = "acs5",
     output = "wide"
   )
@@ -259,15 +261,19 @@ fb_stats <- fb_vars %>%
 ### ---Pull HUD CHAS data------
 
 # Income Indicator
-# Download in Zip file from HUD website, unzip and rename
-download.file("https://www.huduser.gov/portal/datasets/cp/2012thru2016-140-csv.zip", 
-              destfile = "data/raw-data/hud_files.zip",
-              method = "libcurl")
-unzip("data/raw-data/hud_files.zip", 
-      files = "2012thru2016-140-csv/2012thru2016-140-csv/140/Table8.csv",
-      exdir = "data/raw-data")
 
-file.rename("data/raw-data/2012thru2016-140-csv/2012thru2016-140-csv/140/Table8.csv",
+# Sometimes the below download.file() fxn spits out a timeout error. So we 
+# increase the timeout to 2 min  (instead of default 1 min)
+options(timeout=180)
+
+# Download in Zip file from HUD website, unzip and rename
+download.file("https://www.huduser.gov/portal/datasets/cp/2013thru2017-140-csv.zip", 
+              destfile = "data/raw-data/hud_files.zip",
+              method = "curl")
+unzip("data/raw-data/hud_files.zip", 
+      files = "2013thru2017-140-csv/140/Table8.csv",
+      exdir = "data/raw-data")
+file.rename("data/raw-data/2013thru2017-140-csv/140/Table8.csv",
             "data/raw-data/Table8.csv")
 
 income_vars <- read_csv("data/raw-data/Table8.csv")
@@ -342,6 +348,23 @@ indicator_data = indicator_data %>%
                    mean(perc_public_assistance, na.rm = T),
                    perc_public_assistance)
            )
+
+assert(
+  "Check that none of the percent columns have values above 1",
+  indicator_data %>% 
+  select(GEOID, starts_with("perc")) %>% 
+  filter(across(starts_with("perc"), ~.x > 1)) %>% 
+  nrow == 0
+)
+
+assert(
+  "Check that none of the percent columns have values below 0",
+  indicator_data %>% 
+    select(GEOID, starts_with("perc")) %>% 
+    filter(across(starts_with("perc"), ~.x < 0)) %>% 
+    nrow == 0
+)
+
 
 ###---Convert to Z scores---------------------------
 
@@ -425,7 +448,7 @@ row_sum_weighted = function(df, weight_vec){
 generate_index = function(df, 
                           indicator_weights_df,
                           index_weights_vec, 
-                          tracts_18 = NA,
+                          tracts_19 = NA,
                           rescale_indices = FALSE){
   # Function to generate covid, housing, equity, and total index given weights. 
   # INPUT:
@@ -434,6 +457,7 @@ generate_index = function(df,
   #     indicator_weights object for an example
   #   index_weights_vec: vector of length 3, which contains weights fo housing, 
   #     equity, and covid index (in that order)
+  ##UPDATED TO tracts_19###
   #   tracts_18: An sf dataframe of 2018 tracts with a GEOID column. If NA, this
   #     function will download in the data from the Job Loss tool data files
   # OUTPUT:
@@ -501,15 +525,12 @@ generate_index = function(df,
   # Attach geometries for each tract using data files from Job Loss Tool
   
   # If tracts isn't given in fxn call, then download in from Job Loss Tool data
-  if (is.na(tracts_18)){
-    tracts_18_job_loss = 
-      st_read("https://ui-lodes-job-change-public.s3.amazonaws.com/job_loss_by_tract.geojson")
-    tracts_18 = tracts_18_job_loss %>% 
-      select(GEOID, geometry)
+  if (is.na(tracts_19)){
+    stop("The tracts argument was not provided")
   } 
   
   result_with_geoms = result %>% 
-    right_join(tracts_18, by = "GEOID") %>% 
+    right_join(tracts_19, by = "GEOID") %>% 
     st_as_sf()
 
   return(result_with_geoms)
@@ -519,15 +540,15 @@ generate_index = function(df,
 
 ###---Create Indexes---------
 
-tracts_18_job_loss = 
+tracts_19_job_loss = 
   st_read("https://ui-lodes-job-change-public.s3.amazonaws.com/job_loss_by_tract.geojson")
-tracts_18 = tracts_18_job_loss %>% 
+tracts_19 = tracts_19_job_loss %>% 
   select(GEOID, geometry)
 
 indexed_data_us = generate_index(z_scored_us,
                                  indicator_weights,
                                  index_weights,
-                                 tracts_18)
+                                 tracts_19)
 
 indexed_data_us <- indexed_data_us %>%
   left_join(num_ELI, by = "GEOID") %>% 
@@ -540,7 +561,7 @@ indexed_data_us <- indexed_data_us %>%
 indexed_data_by_state = generate_index(z_scored_by_state, 
                                        indicator_weights, 
                                        index_weights,
-                                       tracts_18,
+                                       tracts_19,
                                       rescale_indices = F)
 
 indexed_data_by_state <- indexed_data_by_state %>%
@@ -641,7 +662,7 @@ full_data_natl_indices %>%
 
 # Geojson for data catalog
 full_data_natl_indices %>% 
-  st_write("data/intermediate-data/housing_index_natl.geojson")
+  st_write("data/intermediate-data/housing_index_natl.geojson", delete_dsn = TRUE)
 
   
   
@@ -666,8 +687,8 @@ indexed_data_by_state = indexed_data_by_state %>%
   mutate(id = as.numeric(GEOID)) 
 
 ## Write out geojsons
-st_write(indexed_data_us, "data/intermediate-data/housing_data_index.geojson", delete_dsn = T)
-st_write(indexed_data_by_state, "data/intermediate-data/housing_data_index_by_state.geojson", delete_dsn = T)
+st_write(indexed_data_us, "data/intermediate-data/housing_data_index.geojson", delete_dsn = TRUE)
+st_write(indexed_data_by_state, "data/intermediate-data/housing_data_index_by_state.geojson", delete_dsn = TRUE)
 
 
 
