@@ -47,6 +47,7 @@ After each of the indicators are converted to percentages, we take the state ind
 
 ![Image of Weights](/images/indicator_table.png)
 
+
 For more information on our methodology, please see our [technical appendix (PDF)](https://www.urban.org/sites/default/files/2020/08/24/where_to_prioritize_emergency_rental_assistance_to_keep_renters_in_their_homes_technical_appendix.pdf).
 
 ## Scripts
