@@ -292,8 +292,10 @@ num_ELI <- income_stats %>% select(GEOID, num_ELI)
 ### ----Pull Estimated Job Loss Data-------
 
 # low income job loss indicator
-# Read in data on low income jobs lost per tract from Urban Data Catalog
-covid_low_income_job_vars <- read_csv("https://ui-lodes-job-change-public.s3.amazonaws.com/job_loss_by_tract.csv")
+# Read in March data on low income jobs lost per tract from S3. 
+# Note this URL is not the same as the link on the Data catalog, but rather
+# references the specific version ID for the March release
+covid_low_income_job_vars <- read_csv("https://ui-lodes-job-change-public.s3.amazonaws.com/job_loss_by_tract.csv?versionId=k1edMSPh0aOlJEF8DSifUO1BIjx5ZZl2")
 covid_low_income_job_stats <- covid_low_income_job_vars %>%
   select(GEOID, state_name, county_name, state_fips, county_fips,
     perc_low_income_jobs_lost = low_income_worker_job_loss_rate
@@ -540,8 +542,11 @@ generate_index = function(df,
 
 ###---Create Indexes---------
 
+# Note that we read in Job loss data from S3. This is not the Job Loss
+# data catalog link and instead references the specific version ID 
+# of the data that was released in March
 tracts_19_job_loss = 
-  st_read("https://ui-lodes-job-change-public.s3.amazonaws.com/job_loss_by_tract.geojson")
+  st_read("https://ui-lodes-job-change-public.s3.amazonaws.com/job_loss_by_tract.geojson?versionId=visIbLnNnhfy5xzzkHqRUbVnU4fm5zCw")
 tracts_19 = tracts_19_job_loss %>% 
   select(GEOID, geometry)
 
