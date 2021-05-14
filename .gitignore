@@ -33,3 +33,4 @@ data/intermediate-data/*.geojson
 docs/*
 
 *.env
+.DS_Store
