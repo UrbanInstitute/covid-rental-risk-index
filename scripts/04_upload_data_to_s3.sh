@@ -24,12 +24,15 @@ aws s3api put-object-acl --acl public-read --bucket "${covid_rental_risk_bucket}
 
 # State adjusted Geojson
 aws s3 cp data/intermediate-data/housing_index_state_adj_feature.geojson "s3://${covid_rental_risk_bucket}/housing_index_state_adj_feature.geojson"
+aws s3api put-object-acl --acl public-read --bucket "${covid_rental_risk_bucket}" --key housing_index_state_adj_feature.geojson
 
 # County Geojson
 aws s3 cp data/intermediate-data/counties.geojson "s3://${covid_rental_risk_bucket}/counties.geojson"
+aws s3api put-object-acl --acl public-read --bucket "${covid_rental_risk_bucket}" --key counties.geojson
 
 # CoC Geojson
-aws s3 cp data/intermediate-data/coc_geographies_states_split.geojson.geojson "s3://${covid_rental_risk_bucket}/coc_geographies_states_split.geojson.geojson"
+aws s3 cp data/intermediate-data/coc_geographies_states_split.geojson "s3://${covid_rental_risk_bucket}/coc_geographies_states_split.geojson"
+aws s3api put-object-acl --acl public-read --bucket "${covid_rental_risk_bucket}" --key coc_geographies_states_split.geojson
 
 
 ## Unused for now
